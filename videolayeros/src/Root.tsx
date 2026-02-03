@@ -20,15 +20,10 @@ export const Root: React.FC = () => {
       <Composition
         id="SimpleExplainer"
         component={SimpleExplainer}
-        durationInFrames={450}
+        durationInFrames={330}
         fps={30}
         width={1920}
         height={1080}
-        defaultProps={{
-          title: 'Welcome',
-          text: 'This is a simple explainer video',
-          quote: 'Create videos with code',
-        }}
       />
     </>
   );

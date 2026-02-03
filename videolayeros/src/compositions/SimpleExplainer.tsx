@@ -1,26 +1,20 @@
 import React from 'react';
-import {Sequence} from 'remotion';
-import {IntroScene} from '../scenes/IntroScene';
-import {TextScene} from '../scenes/TextScene';
-import {QuoteScene} from '../scenes/QuoteScene';
+import { Sequence } from 'remotion';
+import { TextScene } from '../scenes/TextScene';
 
-interface SimpleExplainerProps {
-  title: string;
-  text: string;
-  quote: string;
-}
-
-export const SimpleExplainer: React.FC<SimpleExplainerProps> = ({title, text, quote}) => {
+export const SimpleExplainer: React.FC = () => {
   return (
     <>
-      <Sequence from={0} durationInFrames={150}>
-        <IntroScene title={title} />
+      <Sequence from={0} durationInFrames={90}>
+        <TextScene text="Meet Your AI Workforce" />
       </Sequence>
-      <Sequence from={150} durationInFrames={150}>
-        <TextScene text={text} />
+
+      <Sequence from={90} durationInFrames={120}>
+        <TextScene text="AI Employees that handle the busywork" background="#4F46E5" />
       </Sequence>
-      <Sequence from={300} durationInFrames={150}>
-        <QuoteScene quote={quote} />
+
+      <Sequence from={210} durationInFrames={120}>
+        <TextScene text="Define the work. VideoLayerOS renders the rest." background="#1E293B" />
       </Sequence>
     </>
   );
