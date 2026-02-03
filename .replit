@@ -42,5 +42,5 @@ localPort = 5000
 externalPort = 5000
 
 [deployment]
-deploymentTarget = "autoscale"
-run = ["npx", "remotion", "studio", "videolayeros/src/index.ts", "--port", "5000", "--ipAddress", "0.0.0.0"]
+deploymentTarget = "vm"
+run = ["npx", "remotion", "studio", "videolayeros/src/index.ts", "--port", "3000", "--ipAddress", "0.0.0.0"]
