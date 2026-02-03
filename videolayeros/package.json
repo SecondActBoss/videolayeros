@@ -1,0 +1,16 @@
+{
+  "name": "videolayeros",
+  "version": "1.0.0",
+  "description": "VideoLayerOS - Programmatic video creation with Remotion",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts",
+    "build": "remotion bundle src/index.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.0"
+  }
+}
