@@ -8,13 +8,22 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ## Current State
 
-**Status**: MVP Complete - Studio running, basic explainer composition working
+**Status**: JSON-Driven Architecture Complete - Data defines videos, engine renders
 
 ### What's Working
 - Remotion Studio running on port 5000
-- TextScene component (reusable text display primitive)
-- SimpleExplainer composition with 3 sequenced scenes
-- Project structure established
+- **JSON-driven scene system**: Schema → Factory → Composition pipeline
+- ConfigDrivenExplainer: Videos defined by data, not hardcoded components
+- TextScene and IntroScene as reusable primitives
+- SimpleExplainer (legacy hardcoded) still available
+
+### Architecture: The OS Layer
+
+```
+JSON Config → Schema Types → Scene Factory → Remotion Composition → Video
+```
+
+VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output.
 
 ### File Structure
 ```
@@ -22,6 +31,10 @@ videolayeros/
 ├── src/
 │   ├── index.ts              # Entry point
 │   ├── Root.tsx              # Composition definitions
+│   ├── schema/
+│   │   └── video.ts          # SceneConfig, VideoConfig types (the contract)
+│   ├── factory/
+│   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── scenes/
 │   │   ├── IntroScene.tsx    # Fade-in title scene
 │   │   ├── TextScene.tsx     # Generic text scene (core building block)
@@ -29,7 +42,8 @@ videolayeros/
 │   ├── layouts/
 │   │   └── FullscreenCentered.tsx
 │   └── compositions/
-│       └── SimpleExplainer.tsx  # 3-scene explainer video
+│       ├── SimpleExplainer.tsx       # Legacy hardcoded
+│       └── ConfigDrivenExplainer.tsx # JSON-driven composition
 ├── assets/
 │   ├── logos/
 │   ├── fonts/
@@ -54,7 +68,7 @@ npx remotion render src/index.ts SimpleExplainer out/explainer.mp4
 Next build layers (in order):
 
 1. **9:16 vertical rendering** - Add vertical format for TikTok/Reels/Shorts
-2. **Scene schemas (JSON input)** - Data-driven scene generation from JSON config
+2. ~~**Scene schemas (JSON input)** - Data-driven scene generation from JSON config~~ ✅ DONE
 3. **AgentLayerOS explainer** - Create explainer video for AgentLayerOS using VideoLayerOS
 4. **README + positioning** - Documentation and value prop
 5. **Cloud rendering (Remotion Lambda)** - AWS Lambda for scalable rendering
