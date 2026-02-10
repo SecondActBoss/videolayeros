@@ -22,7 +22,8 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **Character Emotion Registry**: Auto-selects character assets by emotion (no manual asset paths in JSON)
 - **Scene Intent Resolver**: Maps scene-level intent (e.g. "overload") to per-character emotions automatically
 - **Script Intent Compiler**: Converts narrative script beats into auto-generated scenes with captions
-- **Caption Layer**: Word-timed captions with active word highlighting
+- **Caption Intelligence**: WPM-paced captions with punctuation pauses and emphasis flags
+- **Caption Layer**: Word-timed captions with active word highlighting and emphasis visuals
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - ScriptDrivenExplainer: Auto-compiled from ep01.script.json (3 beats → 3 scenes)
 - TextScene and IntroScene as reusable primitives
@@ -52,7 +53,8 @@ videolayeros/
 │   │   ├── script.ts         # ScriptBeat, ScriptFile types
 │   │   └── captions.ts       # WordTiming, CaptionsFile types
 │   ├── compiler/
-│   │   └── intentCompiler.ts # Script → scenes + captions compilation
+│   │   ├── intentCompiler.ts # Script → scenes + captions compilation
+│   │   └── captionCompiler.ts # WPM pacing, punctuation pauses, emphasis
 │   ├── factory/
 │   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── components/

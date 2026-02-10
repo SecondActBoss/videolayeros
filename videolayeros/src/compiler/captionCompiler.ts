@@ -52,19 +52,30 @@ export function compileCaptionsWithPacing(
   const baseSecondsPerWord = 60 / wpm;
 
   const pauses = rawWords.map((w) => getPause(w));
-  const totalPauseTime = pauses.reduce((sum, p) => sum + p, 0);
-  const availableForWords = durationSeconds - totalPauseTime;
+  let totalPauseTime = pauses.reduce((sum, p) => sum + p, 0);
 
-  let secondsPerWord = Math.max(
-    availableForWords / rawWords.length,
-    MIN_WORD_DURATION,
-  );
+  const idealWordTime = baseSecondsPerWord * rawWords.length + totalPauseTime;
 
-  if (secondsPerWord * rawWords.length + totalPauseTime > durationSeconds) {
-    secondsPerWord = Math.max(
-      (durationSeconds - totalPauseTime) / rawWords.length,
-      MIN_WORD_DURATION,
-    );
+  let secondsPerWord: number;
+
+  if (idealWordTime <= durationSeconds) {
+    secondsPerWord = baseSecondsPerWord;
+  } else {
+    const available = durationSeconds - totalPauseTime;
+    if (available >= rawWords.length * MIN_WORD_DURATION) {
+      secondsPerWord = available / rawWords.length;
+    } else {
+      secondsPerWord = MIN_WORD_DURATION;
+      const wordTimeTotal = MIN_WORD_DURATION * rawWords.length;
+      const remainingForPauses = Math.max(0, durationSeconds - wordTimeTotal);
+      if (totalPauseTime > 0) {
+        const pauseScale = remainingForPauses / totalPauseTime;
+        for (let i = 0; i < pauses.length; i++) {
+          pauses[i] = pauses[i] * pauseScale;
+        }
+        totalPauseTime = remainingForPauses;
+      }
+    }
   }
 
   const result: WordTiming[] = [];
@@ -72,13 +83,13 @@ export function compileCaptionsWithPacing(
 
   for (let i = 0; i < rawWords.length; i++) {
     const word = rawWords[i];
-    const wordEnd = cursor + secondsPerWord;
+    const wordEnd = Math.min(cursor + secondsPerWord, durationSeconds);
     const prevHadPause = i > 0 && pauses[i - 1] > 0;
 
     const timing: WordTiming = {
       text: word,
       start: parseFloat(cursor.toFixed(3)),
-      end: parseFloat(wordEnd.toFixed(3)),
+      end: parseFloat(Math.min(wordEnd, durationSeconds).toFixed(3)),
     };
 
     if (shouldEmphasize(word, i, rawWords.length, emphasis, prevHadPause)) {
