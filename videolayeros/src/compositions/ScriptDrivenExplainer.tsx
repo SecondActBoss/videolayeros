@@ -5,6 +5,7 @@ import { SceneConfig } from '../schema/video';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
 import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
 import { resolveDensity } from '../registry/visualDensity';
+import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
 import scriptData from '../assets/scripts/ep01.script.json';
 import { ScriptFile } from '../schema/script';
 
@@ -36,12 +37,16 @@ function buildDensitySegments(scenes: SceneConfig[]): DensitySegment[] {
     const density = (scene.type === 'multiCharacter' || scene.type === 'character')
       ? (scene as any).density
       : undefined;
-    const profile = resolveDensity(density, intent);
+    let profile = resolveDensity(density, intent);
+
+    const hasDwight = scene.type === 'multiCharacter' && isDwightPresent(scene.characters);
+    profile = applyDwightDensityCap(profile, hasDwight);
 
     segments.push({
       startFrame: currentFrame,
       endFrame: currentFrame + duration,
       density: profile,
+      dwightPresent: hasDwight,
     });
 
     currentFrame += duration;

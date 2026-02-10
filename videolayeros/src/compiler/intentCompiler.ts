@@ -3,6 +3,8 @@ import { SceneConfig, MultiCharacterSceneConfig, CharacterLayerConfig } from '..
 import { SCENE_INTENTS } from '../registry/sceneIntents';
 import { WordTiming } from '../schema/captions';
 import { compileCaptionsWithPacing } from './captionCompiler';
+import { DWIGHT_CHARACTER_ID } from '../registry/dwightPersonality';
+import { getDwightWpmMultiplier } from '../resolvers/dwightBehaviorResolver';
 
 const EMPHASIS_DURATION: Record<string, number> = {
   fast: 2.5,
@@ -74,7 +76,11 @@ export function compileScriptToCaptions(script: ScriptFile): WordTiming[] {
     const duration = EMPHASIS_DURATION[beat.emphasis ?? 'normal'] ?? 4;
     const emphasis = beat.emphasis ?? 'normal';
 
-    const beatWords = compileCaptionsWithPacing(beat.text, duration, emphasis);
+    const characters = getCharactersForIntent(beat.intent);
+    const hasDwight = characters.some((c) => c.characterId === DWIGHT_CHARACTER_ID);
+    const wpmMultiplier = getDwightWpmMultiplier(hasDwight);
+
+    const beatWords = compileCaptionsWithPacing(beat.text, duration, emphasis, wpmMultiplier);
 
     for (const word of beatWords) {
       allWords.push({

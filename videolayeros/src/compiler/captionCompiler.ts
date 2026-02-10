@@ -44,11 +44,12 @@ export function compileCaptionsWithPacing(
   text: string,
   durationSeconds: number,
   emphasis: 'fast' | 'normal' | 'slow',
+  wpmMultiplier: number = 1.0,
 ): WordTiming[] {
   const rawWords = text.split(/\s+/).filter((w) => w.length > 0);
   if (rawWords.length === 0) return [];
 
-  const wpm = WPM[emphasis] ?? WPM.normal;
+  const wpm = (WPM[emphasis] ?? WPM.normal) * wpmMultiplier;
   const baseSecondsPerWord = 60 / wpm;
 
   const pauses = rawWords.map((w) => getPause(w));

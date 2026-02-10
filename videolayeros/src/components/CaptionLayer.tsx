@@ -14,6 +14,7 @@ export interface DensitySegment {
   startFrame: number;
   endFrame: number;
   density: DensityProfile;
+  dwightPresent?: boolean;
 }
 
 interface CaptionLayerProps {
@@ -25,19 +26,19 @@ interface CaptionLayerProps {
 const WINDOW_SIZE = 8;
 const DEFAULT_DENSITY = DENSITY_PROFILES.medium;
 
-function getDensityAtFrame(
+function getSegmentAtFrame(
   frame: number,
   segments?: DensitySegment[],
-): DensityProfile {
-  if (!segments || segments.length === 0) return DEFAULT_DENSITY;
+): DensitySegment | null {
+  if (!segments || segments.length === 0) return null;
 
   for (const seg of segments) {
     if (frame >= seg.startFrame && frame < seg.endFrame) {
-      return seg.density;
+      return seg;
     }
   }
 
-  return DEFAULT_DENSITY;
+  return null;
 }
 
 export const CaptionLayer: React.FC<CaptionLayerProps> = ({
@@ -54,7 +55,9 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
   const bottom = style?.bottom ?? 80;
   const lineHeight = style?.lineHeight ?? 1.4;
 
-  const density = getDensityAtFrame(frame, densitySegments);
+  const segment = getSegmentAtFrame(frame, densitySegments);
+  const density = segment?.density ?? DEFAULT_DENSITY;
+  const dwightPresent = segment?.dwightPresent ?? false;
 
   const activeIndex = words.findIndex(
     (w) => currentTimeSec >= w.start && currentTimeSec < w.end
@@ -99,7 +102,7 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
             const isActive = globalIndex === activeIndex;
             const isStrong = word.emphasis === 'strong';
 
-            const scale = isActive && isStrong ? 1.1 : 1;
+            const scale = dwightPresent ? 1 : (isActive && isStrong ? 1.1 : 1);
             const opacity = isActive ? 1 : isStrong ? 0.9 : 0.55;
             const weight = isActive ? 700 : isStrong ? 600 : 400;
             const color = isActive

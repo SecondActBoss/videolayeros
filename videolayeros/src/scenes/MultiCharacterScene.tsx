@@ -7,6 +7,13 @@ import { resolveIntentEmotion } from '../registry/sceneIntents';
 import { resolveFraming, anchorToTranslate, FramingProfile } from '../registry/framingProfiles';
 import { resolveTransition, computeTransitionScale, TransitionProfile } from '../registry/transitionProfiles';
 import { resolveDensity, DensityProfile } from '../registry/visualDensity';
+import {
+  isDwightPresent,
+  isDwightCharacter,
+  applyDwightMotion,
+  applyDwightFramingBias,
+  applyDwightDensityCap,
+} from '../resolvers/dwightBehaviorResolver';
 
 function resolveCharacter(
   character: CharacterLayerConfig,
@@ -21,12 +28,15 @@ function resolveCharacter(
   if (character.characterId && emotion !== undefined) {
     const emotionState = resolveCharacterEmotion(character.characterId, emotion);
     if (emotionState) {
-      return {
+      let resolvedMotion = character.motion ?? emotionState.defaultMotion;
+      const resolved: CharacterLayerConfig = {
         ...character,
         asset: character.asset ?? emotionState.asset,
         scale: character.scale ?? emotionState.defaultScale,
-        motion: character.motion ?? emotionState.defaultMotion,
+        motion: resolvedMotion,
       };
+      resolved.motion = applyDwightMotion(character, resolved.motion);
+      return resolved;
     }
   }
 
@@ -34,13 +44,17 @@ function resolveCharacter(
     if (character.characterId) {
       const emotionState = resolveCharacterEmotion(character.characterId, 'neutral');
       if (emotionState) {
-        return { ...character, asset: emotionState.asset };
+        const resolved = { ...character, asset: emotionState.asset };
+        resolved.motion = applyDwightMotion(character, resolved.motion);
+        return resolved;
       }
     }
     console.warn(`[MultiCharacterScene] No asset resolved for character "${character.id}".`);
   }
 
-  return character;
+  const result = { ...character };
+  result.motion = applyDwightMotion(character, result.motion);
+  return result;
 }
 
 const CharacterLayer: React.FC<{
@@ -131,9 +145,15 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
 }) => {
   const { durationInFrames, fps } = useVideoConfig();
 
-  const framingProfile = resolveFraming(framing, intent);
+  const hasDwight = isDwightPresent(characters);
+
+  let framingProfile = resolveFraming(framing, intent);
+  framingProfile = applyDwightFramingBias(framingProfile, hasDwight);
+
   const transitionProfile = resolveTransition(transition, intent);
-  const densityProfile = resolveDensity(density, intent);
+
+  let densityProfile = resolveDensity(density, intent);
+  densityProfile = applyDwightDensityCap(densityProfile, hasDwight);
 
   const bgStyle: React.CSSProperties = {
     overflow: 'hidden',
