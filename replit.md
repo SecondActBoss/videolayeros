@@ -8,11 +8,14 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ## Current State
 
-**Status**: MultiCharacterScene Complete - Layered character compositing with shared motion
+**Status**: Poster Mode Complete - Single-frame thumbnail/poster rendering from video config
 
 ### What's Working
 - Remotion Studio running on port 5000
 - **JSON-driven scene system**: Schema → Factory → Composition pipeline
+- **Poster Mode**: Generate high-impact still images (thumbnails/posters) from existing scenes
+- **PosterLayer**: Crop/zoom + headline overlay for thumbnail energy
+- **PosterComposition**: 1-frame composition with aspect ratio support (16:9, 1:1, 4:5)
 - **CharacterScene**: Static images with deterministic pan/zoom motion from JSON config
 - **MultiCharacterScene**: Multiple character layers with independent position, scale, and motion
 - **Shared motion utils**: `src/utils/motion.ts` - reusable interpolation logic
@@ -45,7 +48,8 @@ videolayeros/
 │   ├── factory/
 │   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── components/
-│   │   └── CaptionLayer.tsx  # Word-timed caption overlay component
+│   │   ├── CaptionLayer.tsx  # Word-timed caption overlay component
+│   │   └── PosterLayer.tsx   # Crop/zoom + headline for poster mode
 │   ├── utils/
 │   │   └── motion.ts         # Shared motion interpolation (computeMotion)
 │   ├── scenes/
@@ -61,7 +65,8 @@ videolayeros/
 │   │       └── ep01.words.json  # Sample word timings
 │   └── compositions/
 │       ├── SimpleExplainer.tsx       # Legacy hardcoded
-│       └── ConfigDrivenExplainer.tsx # JSON-driven composition with captions
+│       ├── ConfigDrivenExplainer.tsx # JSON-driven composition with captions
+│       └── PosterComposition.tsx    # Single-frame poster/thumbnail render
 ├── assets/
 │   ├── logos/
 │   ├── fonts/
@@ -77,8 +82,11 @@ videolayeros/
 # Start studio (configured in workflow)
 cd videolayeros && npx remotion studio src/index.ts --port 5000 --ipAddress 0.0.0.0
 
-# Render video locally
-npx remotion render src/index.ts SimpleExplainer out/explainer.mp4
+# Render video
+npx remotion render src/index.ts ConfigDrivenExplainer out/explainer.mp4
+
+# Render poster/thumbnail
+npx remotion still src/index.ts Poster out/poster.png
 ```
 
 ## Roadmap

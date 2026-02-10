@@ -4,7 +4,8 @@
   "description": "VideoLayerOS - Programmatic video creation with Remotion",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts",
+    "render": "remotion render src/index.ts ConfigDrivenExplainer out/explainer.mp4",
+    "render:poster": "remotion still src/index.ts Poster out/poster.png",
     "build": "remotion bundle src/index.ts"
   },
   "dependencies": {

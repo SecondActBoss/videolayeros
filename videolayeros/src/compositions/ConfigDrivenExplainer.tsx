@@ -5,7 +5,7 @@ import { VideoConfig } from '../schema/video';
 import { CaptionLayer } from '../components/CaptionLayer';
 import captionsData from '../assets/captions/ep01.words.json';
 
-const config: VideoConfig = {
+export const explainerConfig: VideoConfig = {
   composition: 'ConfigDrivenExplainer',
   scenes: [
     { type: 'intro', text: 'Meet Your AI Workforce' },
@@ -68,6 +68,20 @@ const config: VideoConfig = {
     enabled: true,
     source: 'ep01.words.json',
   },
+  poster: {
+    enabled: true,
+    sceneIndex: 2,
+    aspectRatio: '16:9',
+    crop: {
+      zoom: 1.35,
+      offsetX: -20,
+      offsetY: -10,
+    },
+    headline: {
+      text: 'EVERY LEAD. EVERY TIME.',
+      position: 'top-left',
+    },
+  },
 };
 
 const FPS = 30;
@@ -84,7 +98,7 @@ export const ConfigDrivenExplainer: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      {config.scenes.map((scene, index) => {
+      {explainerConfig.scenes.map((scene, index) => {
         const duration = getSceneDuration(scene);
         const element = (
           <Sequence
@@ -100,7 +114,7 @@ export const ConfigDrivenExplainer: React.FC = () => {
         return element;
       })}
 
-      {config.captions?.enabled && (
+      {explainerConfig.captions?.enabled && (
         <AbsoluteFill style={{ zIndex: 10 }}>
           <CaptionLayer words={captionsData.words} />
         </AbsoluteFill>

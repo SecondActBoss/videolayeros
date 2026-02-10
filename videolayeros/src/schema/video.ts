@@ -54,6 +54,28 @@ export interface MultiCharacterSceneConfig extends BaseScene {
   characters: CharacterLayerConfig[];
 }
 
+export type PosterAspectRatio = '16:9' | '1:1' | '4:5';
+
+export interface PosterCropConfig {
+  zoom: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export interface PosterHeadlineConfig {
+  text: string;
+  position: 'top-left' | 'top-right' | 'left';
+}
+
+export interface PosterConfig {
+  enabled: boolean;
+  sceneIndex?: number;
+  frame?: number;
+  aspectRatio?: PosterAspectRatio;
+  crop?: PosterCropConfig;
+  headline?: PosterHeadlineConfig;
+}
+
 export type SceneConfig =
   | IntroSceneConfig
   | TextSceneConfig
@@ -69,4 +91,5 @@ export interface VideoConfig {
   composition: string;
   scenes: SceneConfig[];
   captions?: CaptionsConfig;
+  poster?: PosterConfig;
 }
