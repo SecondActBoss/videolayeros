@@ -2,6 +2,7 @@ import { ScriptFile, ScriptBeat } from '../schema/script';
 import { SceneConfig, MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video';
 import { SCENE_INTENTS } from '../registry/sceneIntents';
 import { WordTiming } from '../schema/captions';
+import { compileCaptionsWithPacing } from './captionCompiler';
 
 const EMPHASIS_DURATION: Record<string, number> = {
   fast: 2.5,
@@ -52,30 +53,25 @@ export function compileScriptToScenes(script: ScriptFile): SceneConfig[] {
 }
 
 export function compileScriptToCaptions(script: ScriptFile): WordTiming[] {
-  const words: WordTiming[] = [];
+  const allWords: WordTiming[] = [];
   let currentTime = 0;
 
   for (const beat of script.beats) {
     const duration = EMPHASIS_DURATION[beat.emphasis ?? 'normal'] ?? 4;
-    const beatWords = beat.text.split(/\s+/).filter((w) => w.length > 0);
+    const emphasis = beat.emphasis ?? 'normal';
 
-    if (beatWords.length === 0) {
-      currentTime += duration;
-      continue;
-    }
+    const beatWords = compileCaptionsWithPacing(beat.text, duration, emphasis);
 
-    const wordDuration = duration / beatWords.length;
-
-    for (let i = 0; i < beatWords.length; i++) {
-      words.push({
-        text: beatWords[i],
-        start: currentTime + i * wordDuration,
-        end: currentTime + (i + 1) * wordDuration,
+    for (const word of beatWords) {
+      allWords.push({
+        ...word,
+        start: parseFloat((word.start + currentTime).toFixed(3)),
+        end: parseFloat((word.end + currentTime).toFixed(3)),
       });
     }
 
     currentTime += duration;
   }
 
-  return words;
+  return allWords;
 }

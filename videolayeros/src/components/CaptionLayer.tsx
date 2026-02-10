@@ -67,13 +67,30 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
           }}
         >
           {visibleWords.map((word, i) => {
-            const isActive = windowStart + i === activeIndex;
+            const globalIndex = windowStart + i;
+            const isActive = globalIndex === activeIndex;
+            const isStrong = word.emphasis === 'strong';
+
+            const scale = isActive && isStrong ? 1.1 : 1;
+            const opacity = isActive ? 1 : isStrong ? 0.9 : 0.55;
+            const weight = isActive ? 700 : isStrong ? 600 : 400;
+            const color = isActive
+              ? '#FFFFFF'
+              : isStrong
+                ? 'rgba(255, 255, 255, 0.9)'
+                : 'rgba(255, 255, 255, 0.55)';
+
             return (
               <span
-                key={windowStart + i}
+                key={globalIndex}
                 style={{
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)',
+                  fontWeight: weight,
+                  color,
+                  opacity,
+                  display: 'inline-block',
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center bottom',
+                  transition: 'transform 0.1s ease',
                 }}
               >
                 {word.text}
