@@ -4,6 +4,7 @@ import { MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video
 import { computeMotion } from '../utils/motion';
 import { resolveCharacterEmotion } from '../registry/characterEmotions';
 import { resolveIntentEmotion } from '../registry/sceneIntents';
+import { resolveFraming, anchorToTranslate, FramingProfile } from '../registry/framingProfiles';
 
 function resolveCharacter(
   character: CharacterLayerConfig,
@@ -44,31 +45,42 @@ const CharacterLayer: React.FC<{
   character: CharacterLayerConfig;
   intent?: string;
   durationInFrames: number;
-}> = ({ character, intent, durationInFrames }) => {
+  framingProfile: FramingProfile | null;
+}> = ({ character, intent, durationInFrames, framingProfile }) => {
   const frame = useCurrentFrame();
   const resolved = resolveCharacter(character, intent);
 
-  const baseScale = resolved.scale ?? 1.0;
-
-  const motionConfig = resolved.motion
-    ? {
-        ...resolved.motion,
-        startScale: resolved.motion.startScale ?? baseScale,
-        endScale: resolved.motion.endScale ?? baseScale,
-      }
-    : {
-        type: 'static' as const,
-        startScale: baseScale,
-        endScale: baseScale,
-      };
-
-  const { scale, translateX, translateY } = computeMotion(
-    frame,
-    durationInFrames,
-    motionConfig,
-  );
-
   if (!resolved.asset) return null;
+
+  let scale: number;
+  let motionTranslateX: number;
+  let motionTranslateY: number;
+
+  if (framingProfile) {
+    const anchorOffset = anchorToTranslate(framingProfile.anchor);
+    scale = (resolved.scale ?? 1.0) * framingProfile.scale;
+    motionTranslateX = anchorOffset.x;
+    motionTranslateY = anchorOffset.y;
+  } else {
+    const baseScale = resolved.scale ?? 1.0;
+    const motionConfig = resolved.motion
+      ? {
+          ...resolved.motion,
+          startScale: resolved.motion.startScale ?? baseScale,
+          endScale: resolved.motion.endScale ?? baseScale,
+        }
+      : {
+          type: 'static' as const,
+          startScale: baseScale,
+          endScale: baseScale,
+        };
+    const motionResult = computeMotion(frame, durationInFrames, motionConfig);
+    scale = motionResult.scale;
+    motionTranslateX = motionResult.translateX;
+    motionTranslateY = motionResult.translateY;
+  }
+
+  const framingYOffset = framingProfile?.yOffset ?? 0;
 
   return (
     <div
@@ -76,7 +88,7 @@ const CharacterLayer: React.FC<{
         position: 'absolute',
         left: '50%',
         top: '50%',
-        transform: `translate(-50%, -50%) translate(${resolved.position.x}%, ${resolved.position.y}%)`,
+        transform: `translate(-50%, -50%) translate(${resolved.position.x}%, ${resolved.position.y + framingYOffset}%)`,
         height: '100%',
       }}
     >
@@ -85,7 +97,7 @@ const CharacterLayer: React.FC<{
         style={{
           height: '100%',
           objectFit: 'contain',
-          transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
+          transform: `scale(${scale}) translate(${motionTranslateX}%, ${motionTranslateY}%)`,
         }}
       />
     </div>
@@ -95,9 +107,12 @@ const CharacterLayer: React.FC<{
 export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
   background,
   intent,
+  framing,
   characters,
 }) => {
   const { durationInFrames } = useVideoConfig();
+
+  const framingProfile = resolveFraming(framing, intent);
 
   const bgStyle: React.CSSProperties = {
     overflow: 'hidden',
@@ -127,6 +142,7 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
           character={character}
           intent={intent}
           durationInFrames={durationInFrames}
+          framingProfile={framingProfile}
         />
       ))}
     </AbsoluteFill>

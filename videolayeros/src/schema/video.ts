@@ -26,11 +26,14 @@ export interface CharacterMotionConfig {
   endY?: number;
 }
 
+export type FramingType = 'subject-dominant' | 'contextual' | 'supporting';
+
 export interface CharacterSceneConfig extends BaseScene {
   type: 'character';
   asset: string;
   duration: number;
   motion?: CharacterMotionConfig;
+  framing?: FramingType;
 }
 
 export interface CharacterLayerConfig {
@@ -50,6 +53,7 @@ export interface MultiCharacterSceneConfig extends BaseScene {
   type: 'multiCharacter';
   duration: number;
   intent?: string;
+  framing?: FramingType;
   background?: {
     color?: string;
     image?: string;

@@ -40,12 +40,18 @@ function beatToScene(beat: ScriptBeat): MultiCharacterSceneConfig {
   const duration = EMPHASIS_DURATION[beat.emphasis ?? 'normal'] ?? 4;
   const characters = getCharactersForIntent(beat.intent);
 
-  return {
+  const scene: MultiCharacterSceneConfig = {
     type: 'multiCharacter',
     duration,
     intent: beat.intent,
     characters,
   };
+
+  if (beat.framing) {
+    scene.framing = beat.framing;
+  }
+
+  return scene;
 }
 
 export function compileScriptToScenes(script: ScriptFile): SceneConfig[] {
