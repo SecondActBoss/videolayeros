@@ -62,7 +62,10 @@ const densitySegments = buildDensitySegments(compiledScenes);
 
 export const scriptExplainerDuration = totalFrames;
 
-export const scriptVoiceConfig: VoiceConfig | undefined = undefined;
+export const scriptVoiceConfig: VoiceConfig | undefined = {
+  src: 'audio/ep01-mock.wav',
+  volume: 0.5,
+};
 
 export const ScriptDrivenExplainer: React.FC = () => {
   let currentFrame = 0;
