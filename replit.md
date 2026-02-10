@@ -28,6 +28,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **Camera Transitions**: Beat-to-beat transitions (cut, push, hold) auto-assigned from intent
 - **Visual Density**: Brand grammar layer - scenes auto-adjust visual loudness (caption opacity, contrast) from intent
 - **Dwight Personality Layer**: Encoded behavioral personality - Dwight calms scenes (hold motion, density cap, steady captions)
+- **Voice + Silence Intelligence**: [silence] and [pause] tokens in scripts create intentional breathing room; Dwight extends pauses +15% with slower caption fades
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - ScriptDrivenExplainer: Auto-compiled from ep01.script.json (3 beats → 3 scenes)
 - TextScene and IntroScene as reusable primitives
@@ -58,7 +59,8 @@ videolayeros/
 │   │   └── captions.ts       # WordTiming, CaptionsFile types
 │   ├── compiler/
 │   │   ├── intentCompiler.ts # Script → scenes + captions compilation
-│   │   └── captionCompiler.ts # WPM pacing, punctuation pauses, emphasis
+│   │   ├── captionCompiler.ts # WPM pacing, punctuation pauses, emphasis
+│   │   └── silenceCompiler.ts # [silence]/[pause] detection + silence windows
 │   ├── factory/
 │   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── components/
