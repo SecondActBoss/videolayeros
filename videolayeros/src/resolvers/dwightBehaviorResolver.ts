@@ -87,3 +87,16 @@ export function getDwightWpmMultiplier(hasDwight: boolean): number {
   if (!hasDwight) return 1.0;
   return DWIGHT_PERSONALITY.captionTone.wpmMultiplier;
 }
+
+export function getDwightSilenceFades(dwightPresent: boolean): {
+  fadeOutMs: number;
+  fadeInMs: number;
+} {
+  if (!dwightPresent) {
+    return { fadeOutMs: 200, fadeInMs: 150 };
+  }
+  return {
+    fadeOutMs: DWIGHT_PERSONALITY.silence.fadeOutMs,
+    fadeInMs: DWIGHT_PERSONALITY.silence.fadeInMs,
+  };
+}

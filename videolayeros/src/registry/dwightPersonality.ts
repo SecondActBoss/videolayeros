@@ -22,12 +22,19 @@ export interface DwightCaptionTone {
   wpmMultiplier: number;
 }
 
+export interface DwightSilenceModifier {
+  durationMultiplier: number;
+  fadeOutMs: number;
+  fadeInMs: number;
+}
+
 export interface DwightPersonality {
   characterId: string;
   motion: DwightMotionOverrides;
   framingBias: DwightFramingBias;
   densityInteraction: DwightDensityInteraction;
   captionTone: DwightCaptionTone;
+  silence: DwightSilenceModifier;
 }
 
 export const DWIGHT_PERSONALITY: DwightPersonality = {
@@ -46,5 +53,10 @@ export const DWIGHT_PERSONALITY: DwightPersonality = {
   captionTone: {
     scaleBump: false,
     wpmMultiplier: 0.9,
+  },
+  silence: {
+    durationMultiplier: 1.15,
+    fadeOutMs: 300,
+    fadeInMs: 250,
   },
 };

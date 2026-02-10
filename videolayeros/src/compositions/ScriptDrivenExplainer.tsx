@@ -3,7 +3,7 @@ import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
 import { SceneConfig } from '../schema/video';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
-import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
+import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { resolveDensity } from '../registry/visualDensity';
 import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
 import scriptData from '../assets/scripts/ep01.script.json';
@@ -13,7 +13,9 @@ const FPS = 30;
 
 const script = scriptData as ScriptFile;
 const compiledScenes = compileScriptToScenes(script);
-const compiledCaptions = compileScriptToCaptions(script);
+const compiledResult = compileScriptToCaptionsWithSilence(script);
+const compiledCaptions = compiledResult.words;
+const compiledSilenceWindows = compiledResult.silenceWindows;
 
 const getSceneDuration = (scene: SceneConfig): number => {
   if (scene.durationInFrames) return scene.durationInFrames;
@@ -82,7 +84,11 @@ export const ScriptDrivenExplainer: React.FC = () => {
 
       {compiledCaptions.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
-          <CaptionLayer words={compiledCaptions} densitySegments={densitySegments} />
+          <CaptionLayer
+            words={compiledCaptions}
+            densitySegments={densitySegments}
+            silenceWindows={compiledSilenceWindows}
+          />
         </AbsoluteFill>
       )}
     </AbsoluteFill>

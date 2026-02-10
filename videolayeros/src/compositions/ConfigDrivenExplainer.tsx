@@ -2,9 +2,9 @@ import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
 import { VideoConfig, SceneConfig } from '../schema/video';
-import { WordTiming } from '../schema/captions';
+import { WordTiming, SilenceWindow } from '../schema/captions';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
-import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
+import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { ScriptFile } from '../schema/script';
 import { resolveDensity } from '../registry/visualDensity';
 import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
@@ -153,23 +153,27 @@ function buildDensitySegments(scenes: SceneConfig[]): DensitySegment[] {
 function resolveConfig(config: VideoConfig): {
   scenes: SceneConfig[];
   captionWords: WordTiming[];
+  silenceWindows: SilenceWindow[];
 } {
   if (config.scriptFile) {
     const script = scriptData as ScriptFile;
+    const compiled = compileScriptToCaptionsWithSilence(script);
     return {
       scenes: compileScriptToScenes(script),
-      captionWords: compileScriptToCaptions(script),
+      captionWords: compiled.words,
+      silenceWindows: compiled.silenceWindows,
     };
   }
 
   return {
     scenes: config.scenes ?? [],
     captionWords: config.captions?.enabled ? captionsData.words : [],
+    silenceWindows: [],
   };
 }
 
 export const ConfigDrivenExplainer: React.FC = () => {
-  const { scenes, captionWords } = resolveConfig(explainerConfig);
+  const { scenes, captionWords, silenceWindows } = resolveConfig(explainerConfig);
   const densitySegments = buildDensitySegments(scenes);
   let currentFrame = 0;
 
@@ -193,7 +197,11 @@ export const ConfigDrivenExplainer: React.FC = () => {
 
       {captionWords.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
-          <CaptionLayer words={captionWords} densitySegments={densitySegments} />
+          <CaptionLayer
+            words={captionWords}
+            densitySegments={densitySegments}
+            silenceWindows={silenceWindows}
+          />
         </AbsoluteFill>
       )}
     </AbsoluteFill>

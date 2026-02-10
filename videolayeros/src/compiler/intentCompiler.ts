@@ -1,8 +1,9 @@
 import { ScriptFile, ScriptBeat } from '../schema/script';
 import { SceneConfig, MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video';
 import { SCENE_INTENTS } from '../registry/sceneIntents';
-import { WordTiming } from '../schema/captions';
+import { WordTiming, SilenceWindow } from '../schema/captions';
 import { compileCaptionsWithPacing } from './captionCompiler';
+import { detectSilenceTokens, buildSilenceWindows } from './silenceCompiler';
 import { DWIGHT_CHARACTER_ID } from '../registry/dwightPersonality';
 import { getDwightWpmMultiplier } from '../resolvers/dwightBehaviorResolver';
 
@@ -68,8 +69,18 @@ export function compileScriptToScenes(script: ScriptFile): SceneConfig[] {
   return script.beats.map((beat) => beatToScene(beat));
 }
 
+export interface CompiledCaptions {
+  words: WordTiming[];
+  silenceWindows: SilenceWindow[];
+}
+
 export function compileScriptToCaptions(script: ScriptFile): WordTiming[] {
+  return compileScriptToCaptionsWithSilence(script).words;
+}
+
+export function compileScriptToCaptionsWithSilence(script: ScriptFile): CompiledCaptions {
   const allWords: WordTiming[] = [];
+  const allSilenceWindows: SilenceWindow[] = [];
   let currentTime = 0;
 
   for (const beat of script.beats) {
@@ -80,18 +91,33 @@ export function compileScriptToCaptions(script: ScriptFile): WordTiming[] {
     const hasDwight = characters.some((c) => c.characterId === DWIGHT_CHARACTER_ID);
     const wpmMultiplier = getDwightWpmMultiplier(hasDwight);
 
-    const beatWords = compileCaptionsWithPacing(beat.text, duration, emphasis, wpmMultiplier);
+    const silenceResult = detectSilenceTokens(beat.text);
 
-    for (const word of beatWords) {
-      allWords.push({
-        ...word,
-        start: parseFloat((word.start + currentTime).toFixed(3)),
-        end: parseFloat((word.end + currentTime).toFixed(3)),
-      });
+    if (silenceResult.isFullSilence) {
+      const windows = buildSilenceWindows(currentTime, duration, silenceResult, [], hasDwight);
+      allSilenceWindows.push(...windows);
+      currentTime += duration;
+      continue;
+    }
+
+    const textToCompile = silenceResult.cleanedText;
+    const beatWords = compileCaptionsWithPacing(textToCompile, duration, emphasis, wpmMultiplier);
+
+    const offsetWords = beatWords.map((word) => ({
+      ...word,
+      start: parseFloat((word.start + currentTime).toFixed(3)),
+      end: parseFloat((word.end + currentTime).toFixed(3)),
+    }));
+
+    allWords.push(...offsetWords);
+
+    if (silenceResult.pauseOffsets.length > 0) {
+      const windows = buildSilenceWindows(currentTime, duration, silenceResult, offsetWords, hasDwight);
+      allSilenceWindows.push(...windows);
     }
 
     currentTime += duration;
   }
 
-  return allWords;
+  return { words: allWords, silenceWindows: allSilenceWindows };
 }

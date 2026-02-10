@@ -5,6 +5,12 @@ export interface WordTiming {
   emphasis?: 'strong';
 }
 
+export interface SilenceWindow {
+  startTime: number;
+  endTime: number;
+  dwightExtended?: boolean;
+}
+
 export interface CaptionsFile {
   words: WordTiming[];
 }

@@ -1,7 +1,8 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
-import { WordTiming } from '../schema/captions';
+import { useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
+import { WordTiming, SilenceWindow } from '../schema/captions';
 import { DensityProfile, DENSITY_PROFILES } from '../registry/visualDensity';
+import { getDwightSilenceFades } from '../resolvers/dwightBehaviorResolver';
 
 interface CaptionStyle {
   fontSize?: number;
@@ -21,6 +22,7 @@ interface CaptionLayerProps {
   words: WordTiming[];
   style?: CaptionStyle;
   densitySegments?: DensitySegment[];
+  silenceWindows?: SilenceWindow[];
 }
 
 const WINDOW_SIZE = 8;
@@ -41,10 +43,45 @@ function getSegmentAtFrame(
   return null;
 }
 
+function getSilenceOpacity(
+  currentTimeSec: number,
+  fps: number,
+  silenceWindows?: SilenceWindow[],
+  dwightPresent?: boolean,
+): number {
+  if (!silenceWindows || silenceWindows.length === 0) return 1;
+
+  const fades = getDwightSilenceFades(dwightPresent ?? false);
+  const fadeOutSec = fades.fadeOutMs / 1000;
+  const fadeInSec = fades.fadeInMs / 1000;
+
+  for (const win of silenceWindows) {
+    const fadeOutStart = win.startTime - fadeOutSec;
+    const fadeInEnd = win.endTime + fadeInSec;
+
+    if (currentTimeSec >= fadeOutStart && currentTimeSec < win.startTime) {
+      const progress = (currentTimeSec - fadeOutStart) / fadeOutSec;
+      return 1 - Math.min(1, Math.max(0, progress));
+    }
+
+    if (currentTimeSec >= win.startTime && currentTimeSec < win.endTime) {
+      return 0;
+    }
+
+    if (currentTimeSec >= win.endTime && currentTimeSec < fadeInEnd) {
+      const progress = (currentTimeSec - win.endTime) / fadeInSec;
+      return Math.min(1, Math.max(0, progress));
+    }
+  }
+
+  return 1;
+}
+
 export const CaptionLayer: React.FC<CaptionLayerProps> = ({
   words,
   style,
   densitySegments,
+  silenceWindows,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -58,6 +95,10 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
   const segment = getSegmentAtFrame(frame, densitySegments);
   const density = segment?.density ?? DEFAULT_DENSITY;
   const dwightPresent = segment?.dwightPresent ?? false;
+
+  const silenceOpacity = getSilenceOpacity(currentTimeSec, fps, silenceWindows, dwightPresent);
+
+  if (silenceOpacity === 0) return null;
 
   const activeIndex = words.findIndex(
     (w) => currentTimeSec >= w.start && currentTimeSec < w.end
@@ -78,7 +119,7 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
         display: 'flex',
         justifyContent: 'center',
         pointerEvents: 'none',
-        opacity: density.captionOpacity,
+        opacity: density.captionOpacity * silenceOpacity,
       }}
     >
       <div
