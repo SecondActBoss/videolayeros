@@ -29,6 +29,36 @@ const config: VideoConfig = {
       },
     },
     {
+      type: 'multiCharacter',
+      duration: 6,
+      background: { color: '#F5F5F5' },
+      characters: [
+        {
+          id: 'keith',
+          asset: 'keith_overload.png',
+          position: { x: -10, y: 5 },
+          scale: 1.1,
+          motion: {
+            type: 'panZoom',
+            startScale: 1.1,
+            endScale: 1.15,
+          },
+        },
+        {
+          id: 'rachel',
+          asset: 'rachel_concerned.png',
+          position: { x: 15, y: 8 },
+          scale: 1.0,
+        },
+        {
+          id: 'dwight',
+          asset: 'dwight_confident.png',
+          position: { x: -35, y: 0 },
+          scale: 1.25,
+        },
+      ],
+    },
+    {
       type: 'text',
       text: 'Define the work. VideoLayerOS renders the rest.',
       background: '#1E293B',
@@ -45,6 +75,7 @@ const FPS = 30;
 const getSceneDuration = (scene: VideoConfig['scenes'][number]): number => {
   if (scene.durationInFrames) return scene.durationInFrames;
   if (scene.type === 'character') return scene.duration * FPS;
+  if (scene.type === 'multiCharacter') return scene.duration * FPS;
   return 120;
 };
 

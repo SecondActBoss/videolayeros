@@ -1,4 +1,4 @@
-export type SceneType = 'intro' | 'text' | 'quote' | 'character';
+export type SceneType = 'intro' | 'text' | 'quote' | 'character' | 'multiCharacter';
 
 export interface BaseScene {
   type: SceneType;
@@ -33,10 +33,32 @@ export interface CharacterSceneConfig extends BaseScene {
   motion?: CharacterMotionConfig;
 }
 
+export interface CharacterLayerConfig {
+  id: string;
+  asset: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  scale?: number;
+  motion?: CharacterMotionConfig;
+}
+
+export interface MultiCharacterSceneConfig extends BaseScene {
+  type: 'multiCharacter';
+  duration: number;
+  background?: {
+    color?: string;
+    image?: string;
+  };
+  characters: CharacterLayerConfig[];
+}
+
 export type SceneConfig =
   | IntroSceneConfig
   | TextSceneConfig
-  | CharacterSceneConfig;
+  | CharacterSceneConfig
+  | MultiCharacterSceneConfig;
 
 export interface CaptionsConfig {
   enabled: boolean;

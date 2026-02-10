@@ -1,0 +1,113 @@
+We’re implementing Step 3 of VideoLayerOS: MultiCharacterScene using layered static assets.
+
+Goal:
+- Render multiple characters in a single scene using layers.
+- Each character has its own image, position, scale, and motion.
+- One shared background (or solid color).
+- Works inside ConfigDrivenExplainer.
+- Captions continue to overlay globally.
+
+What to build:
+
+1) Extend the video schema with MultiCharacterSceneConfig
+- File: src/schema/video.ts
+- Add:
+
+type CharacterLayerConfig = {
+  id: string;
+  asset: string;           // image path
+  position: {
+    x: number;             // percent (-50 to 50)
+    y: number;             // percent (-50 to 50)
+  };
+  scale?: number;          // default 1.0
+  motion?: {
+    type: "static" | "pan" | "zoom" | "panZoom";
+    startScale?: number;
+    endScale?: number;
+    startX?: number;
+    endX?: number;
+    startY?: number;
+    endY?: number;
+  };
+};
+
+type MultiCharacterSceneConfig = {
+  type: "multiCharacter";
+  duration: number;        // seconds
+  background?: {
+    color?: string;
+    image?: string;
+  };
+  characters: CharacterLayerConfig[];
+};
+
+2) Create MultiCharacterScene component
+- File: src/scenes/MultiCharacterScene.tsx
+- Props: MultiCharacterSceneConfig
+- Behavior:
+  - Render background first (solid color or image)
+  - Loop through characters array
+  - For each character:
+    - Render <img> absolutely positioned
+    - Apply scale + translate via interpolate()
+    - Use identical motion math to CharacterScene
+  - All characters animate simultaneously unless motion is static
+
+3) Reuse motion logic
+- Extract shared motion interpolation logic into:
+  src/utils/motion.ts
+- CharacterScene and MultiCharacterScene should both use it
+- Avoid duplicated math
+
+4) Wire MultiCharacterScene into renderScene factory
+- File: src/factory/renderScene.tsx
+- Map:
+  "multiCharacter" → <MultiCharacterScene />
+
+5) Add a test MultiCharacter scene to ConfigDrivenExplainer
+- Use placeholder assets if needed
+- Example JSON to validate:
+
+{
+  "type": "multiCharacter",
+  "duration": 6,
+  "background": { "color": "#F5F5F5" },
+  "characters": [
+    {
+      "id": "keith",
+      "asset": "keith_overload.png",
+      "position": { "x": -10, "y": 5 },
+      "scale": 1.1,
+      "motion": {
+        "type": "panZoom",
+        "startScale": 1.1,
+        "endScale": 1.15
+      }
+    },
+    {
+      "id": "rachel",
+      "asset": "rachel_concerned.png",
+      "position": { "x": 15, "y": 8 },
+      "scale": 1.0
+    },
+    {
+      "id": "dwight",
+      "asset": "dwight_confident.png",
+      "position": { "x": -35, "y": 0 },
+      "scale": 1.25
+    }
+  ]
+}
+
+Acceptance criteria:
+- All characters render in one scene.
+- Relative size differences are obvious (Dwight larger = authority).
+- Motion is smooth and deterministic.
+- Captions still overlay correctly.
+- Scene duration matches config.
+
+After implementing, report:
+- Files created
+- Files modified
+- Screenshot of MultiCharacterScene playing in Remotion Studio

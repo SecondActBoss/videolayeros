@@ -17,7 +17,7 @@ export const Root: React.FC = () => {
       <Composition
         id="ConfigDrivenExplainer"
         component={ConfigDrivenExplainer}
-        durationInFrames={510}
+        durationInFrames={690}
         fps={30}
         width={1920}
         height={1080}

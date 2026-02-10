@@ -2,6 +2,7 @@ import React from 'react';
 import { IntroScene } from '../scenes/IntroScene';
 import { TextScene } from '../scenes/TextScene';
 import { CharacterScene } from '../scenes/CharacterScene';
+import { MultiCharacterScene } from '../scenes/MultiCharacterScene';
 import { SceneConfig } from '../schema/video';
 
 export const renderScene = (scene: SceneConfig) => {
@@ -19,6 +20,9 @@ export const renderScene = (scene: SceneConfig) => {
 
     case 'character':
       return <CharacterScene {...scene} />;
+
+    case 'multiCharacter':
+      return <MultiCharacterScene {...scene} />;
 
     default:
       return null;
