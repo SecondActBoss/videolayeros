@@ -1,9 +1,10 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
-import { SceneConfig, VoiceConfig } from '../schema/video';
+import { SceneConfig, VoiceConfig, MusicConfig } from '../schema/video';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
 import { VoiceTrack } from '../components/VoiceTrack';
+import { MusicTrack } from '../components/MusicTrack';
 import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { resolveDensity } from '../registry/visualDensity';
 import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
@@ -67,6 +68,11 @@ export const scriptVoiceConfig: VoiceConfig | undefined = {
   volume: 0.5,
 };
 
+export const scriptMusicConfig: MusicConfig | undefined = {
+  src: 'audio/bg-mock.wav',
+  volume: 0.25,
+};
+
 export const ScriptDrivenExplainer: React.FC = () => {
   let currentFrame = 0;
 
@@ -90,6 +96,14 @@ export const ScriptDrivenExplainer: React.FC = () => {
 
       {scriptVoiceConfig && (
         <VoiceTrack voice={scriptVoiceConfig} />
+      )}
+
+      {scriptMusicConfig && (
+        <MusicTrack
+          music={scriptMusicConfig}
+          hasVoice={!!scriptVoiceConfig}
+          silenceWindows={compiledSilenceWindows}
+        />
       )}
 
       {compiledCaptions.length > 0 && (

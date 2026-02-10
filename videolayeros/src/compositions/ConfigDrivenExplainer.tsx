@@ -5,6 +5,7 @@ import { VideoConfig, SceneConfig } from '../schema/video';
 import { WordTiming, SilenceWindow } from '../schema/captions';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
 import { VoiceTrack } from '../components/VoiceTrack';
+import { MusicTrack } from '../components/MusicTrack';
 import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { ScriptFile } from '../schema/script';
 import { resolveDensity } from '../registry/visualDensity';
@@ -198,6 +199,14 @@ export const ConfigDrivenExplainer: React.FC = () => {
 
       {explainerConfig.voice && (
         <VoiceTrack voice={explainerConfig.voice} />
+      )}
+
+      {explainerConfig.music && (
+        <MusicTrack
+          music={explainerConfig.music}
+          hasVoice={!!explainerConfig.voice}
+          silenceWindows={silenceWindows}
+        />
       )}
 
       {captionWords.length > 0 && (

@@ -115,6 +115,11 @@ export interface VoiceConfig {
   volume?: number;
 }
 
+export interface MusicConfig {
+  src: string;
+  volume?: number;
+}
+
 export interface VideoConfig {
   composition: string;
   scenes?: SceneConfig[];
@@ -122,6 +127,7 @@ export interface VideoConfig {
   captions?: CaptionsConfig;
   poster?: PosterConfig;
   voice?: VoiceConfig;
+  music?: MusicConfig;
 }
 
 export const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: number }> = {
