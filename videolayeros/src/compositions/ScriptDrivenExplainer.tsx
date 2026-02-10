@@ -8,7 +8,7 @@ import { MusicTrack } from '../components/MusicTrack';
 import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { resolveDensity } from '../registry/visualDensity';
 import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
-import scriptData from '../assets/scripts/ep01.script.json';
+import scriptData from '../assets/scripts/ep01_v2.script.json';
 import { ScriptFile } from '../schema/script';
 
 const FPS = 30;
