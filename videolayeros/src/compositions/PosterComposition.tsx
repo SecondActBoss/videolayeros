@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
-import { VideoConfig, SceneConfig } from '../schema/video';
+import { VideoConfig, SceneConfig, AspectRatio } from '../schema/video';
 import { PosterLayer } from '../components/PosterLayer';
 
 const FPS = 30;
@@ -51,16 +51,16 @@ const findTargetScene = (config: VideoConfig): { scene: SceneConfig; localFrame:
 
 interface PosterCompositionProps {
   config: VideoConfig;
+  aspectRatio: AspectRatio;
 }
 
-export const PosterComposition: React.FC<PosterCompositionProps> = ({ config }) => {
-  const poster = config.poster;
+export const PosterComposition: React.FC<PosterCompositionProps> = ({ config, aspectRatio }) => {
   const { scene, localFrame } = findTargetScene(config);
   const sceneDuration = getSceneDuration(scene);
 
   return (
     <AbsoluteFill>
-      <PosterLayer crop={poster?.crop} headline={poster?.headline}>
+      <PosterLayer poster={config.poster} activeAspect={aspectRatio}>
         <Sequence from={-localFrame} durationInFrames={sceneDuration}>
           {renderScene(scene)}
         </Sequence>

@@ -77,6 +77,23 @@ export const explainerConfig: VideoConfig = {
       offsetX: -20,
       offsetY: -10,
     },
+    overrides: {
+      '9:16': {
+        heroScale: 1.5,
+        offsetY: -15,
+        headlinePosition: 'top',
+      },
+      '1:1': {
+        heroScale: 1.3,
+        offsetY: -10,
+        headlinePosition: 'top',
+      },
+      '4:5': {
+        heroScale: 1.4,
+        offsetY: -12,
+        headlinePosition: 'top',
+      },
+    },
     headline: {
       text: 'EVERY LEAD. EVERY TIME.',
       position: 'top-left',

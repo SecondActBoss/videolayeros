@@ -54,25 +54,33 @@ export interface MultiCharacterSceneConfig extends BaseScene {
   characters: CharacterLayerConfig[];
 }
 
-export type PosterAspectRatio = '16:9' | '1:1' | '4:5';
+export type AspectRatio = '16:9' | '9:16' | '1:1' | '4:5';
 
-export interface PosterCropConfig {
-  zoom: number;
-  offsetX: number;
-  offsetY: number;
+export type HeadlinePosition = 'top-left' | 'top-right' | 'top' | 'center' | 'left';
+
+export interface AspectOverrides {
+  heroScale?: number;
+  offsetX?: number;
+  offsetY?: number;
+  headlinePosition?: HeadlinePosition;
 }
 
 export interface PosterHeadlineConfig {
   text: string;
-  position: 'top-left' | 'top-right' | 'left';
+  position?: HeadlinePosition;
 }
 
 export interface PosterConfig {
   enabled: boolean;
   sceneIndex?: number;
   frame?: number;
-  aspectRatio?: PosterAspectRatio;
-  crop?: PosterCropConfig;
+  aspectRatio?: AspectRatio;
+  crop?: {
+    zoom: number;
+    offsetX: number;
+    offsetY: number;
+  };
+  overrides?: Partial<Record<AspectRatio, AspectOverrides>>;
   headline?: PosterHeadlineConfig;
 }
 
@@ -93,3 +101,10 @@ export interface VideoConfig {
   captions?: CaptionsConfig;
   poster?: PosterConfig;
 }
+
+export const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: number }> = {
+  '16:9': { width: 1920, height: 1080 },
+  '9:16': { width: 1080, height: 1920 },
+  '1:1': { width: 1080, height: 1080 },
+  '4:5': { width: 1080, height: 1350 },
+};

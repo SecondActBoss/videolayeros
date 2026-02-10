@@ -5,7 +5,11 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts ConfigDrivenExplainer out/explainer.mp4",
-    "render:poster": "remotion still src/index.ts Poster out/poster.png",
+    "render:poster": "remotion still src/index.ts Poster-16x9 out/poster.png",
+    "render:poster:16x9": "remotion still src/index.ts Poster-16x9 out/poster-16x9.png",
+    "render:poster:9x16": "remotion still src/index.ts Poster-9x16 out/poster-9x16.png",
+    "render:poster:1x1": "remotion still src/index.ts Poster-1x1 out/poster-1x1.png",
+    "render:poster:4x5": "remotion still src/index.ts Poster-4x5 out/poster-4x5.png",
     "build": "remotion bundle src/index.ts"
   },
   "dependencies": {

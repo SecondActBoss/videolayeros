@@ -85,15 +85,18 @@ cd videolayeros && npx remotion studio src/index.ts --port 5000 --ipAddress 0.0.
 # Render video
 npx remotion render src/index.ts ConfigDrivenExplainer out/explainer.mp4
 
-# Render poster/thumbnail
-npx remotion still src/index.ts Poster out/poster.png
+# Render poster/thumbnail (all aspect ratios)
+npx remotion still src/index.ts Poster-16x9 out/poster-16x9.png
+npx remotion still src/index.ts Poster-9x16 out/poster-9x16.png
+npx remotion still src/index.ts Poster-1x1 out/poster-1x1.png
+npx remotion still src/index.ts Poster-4x5 out/poster-4x5.png
 ```
 
 ## Roadmap
 
 Next build layers (in order):
 
-1. **9:16 vertical rendering** - Add vertical format for TikTok/Reels/Shorts
+1. ~~**9:16 vertical rendering** - Add vertical format for TikTok/Reels/Shorts~~ ✅ DONE (multi-aspect poster: 16:9, 9:16, 1:1, 4:5)
 2. ~~**Scene schemas (JSON input)** - Data-driven scene generation from JSON config~~ ✅ DONE
 3. **AgentLayerOS explainer** - Create explainer video for AgentLayerOS using VideoLayerOS
 4. **README + positioning** - Documentation and value prop
