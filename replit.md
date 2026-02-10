@@ -8,11 +8,12 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ## Current State
 
-**Status**: Caption Layer Complete - Word-timed captions overlay on compositions
+**Status**: CharacterScene + Caption Layer Complete - Image scenes with motion + captions
 
 ### What's Working
 - Remotion Studio running on port 5000
 - **JSON-driven scene system**: Schema → Factory → Composition pipeline
+- **CharacterScene**: Static images with deterministic pan/zoom motion from JSON config
 - **Caption Layer**: Word-timed captions with active word highlighting
 - ConfigDrivenExplainer: Videos defined by data with caption overlay
 - TextScene and IntroScene as reusable primitives
@@ -46,6 +47,7 @@ videolayeros/
 │   ├── scenes/
 │   │   ├── IntroScene.tsx    # Fade-in title scene
 │   │   ├── TextScene.tsx     # Generic text scene (core building block)
+│   │   ├── CharacterScene.tsx # Image with pan/zoom motion
 │   │   └── QuoteScene.tsx    # Quote display scene
 │   ├── layouts/
 │   │   └── FullscreenCentered.tsx

@@ -1,6 +1,7 @@
 import React from 'react';
 import { IntroScene } from '../scenes/IntroScene';
 import { TextScene } from '../scenes/TextScene';
+import { CharacterScene } from '../scenes/CharacterScene';
 import { SceneConfig } from '../schema/video';
 
 export const renderScene = (scene: SceneConfig) => {
@@ -15,6 +16,9 @@ export const renderScene = (scene: SceneConfig) => {
           background={scene.background}
         />
       );
+
+    case 'character':
+      return <CharacterScene {...scene} />;
 
     default:
       return null;

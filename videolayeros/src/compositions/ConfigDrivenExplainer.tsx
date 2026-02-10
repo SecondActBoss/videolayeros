@@ -15,6 +15,20 @@ const config: VideoConfig = {
       background: '#4F46E5',
     },
     {
+      type: 'character',
+      asset: 'keith_overload.png',
+      duration: 5,
+      motion: {
+        type: 'panZoom',
+        startScale: 1.0,
+        endScale: 1.06,
+        startX: 0,
+        endX: -3,
+        startY: 0,
+        endY: 0,
+      },
+    },
+    {
       type: 'text',
       text: 'Define the work. VideoLayerOS renders the rest.',
       background: '#1E293B',
@@ -26,13 +40,21 @@ const config: VideoConfig = {
   },
 };
 
+const FPS = 30;
+
+const getSceneDuration = (scene: VideoConfig['scenes'][number]): number => {
+  if (scene.durationInFrames) return scene.durationInFrames;
+  if (scene.type === 'character') return scene.duration * FPS;
+  return 120;
+};
+
 export const ConfigDrivenExplainer: React.FC = () => {
   let currentFrame = 0;
 
   return (
     <AbsoluteFill>
       {config.scenes.map((scene, index) => {
-        const duration = scene.durationInFrames ?? 120;
+        const duration = getSceneDuration(scene);
         const element = (
           <Sequence
             key={index}

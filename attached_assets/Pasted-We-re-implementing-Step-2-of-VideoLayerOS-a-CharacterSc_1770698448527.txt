@@ -1,0 +1,82 @@
+We’re implementing Step 2 of VideoLayerOS: a CharacterScene primitive to replace RunwayML.
+
+Goal:
+- Render a static character image with deterministic motion (pan / zoom).
+- Motion is driven entirely by JSON config.
+- Scene plays smoothly under the existing CaptionLayer.
+- No AI interpolation, no video stitching.
+
+What to build:
+
+1) Extend the video schema with CharacterSceneConfig
+- File: src/schema/video.ts
+- Add a new scene type:
+  type CharacterSceneConfig = {
+    type: "character";
+    asset: string;           // path to image (e.g. "keith_overload.png")
+    duration: number;        // seconds
+    motion?: {
+      type: "static" | "pan" | "zoom" | "panZoom";
+      startScale?: number;   // e.g. 1.0
+      endScale?: number;     // e.g. 1.05
+      startX?: number;       // percent offset (-5 to 5)
+      endX?: number;
+      startY?: number;
+      endY?: number;
+    };
+  };
+
+2) Create CharacterScene component
+- File: src/scenes/CharacterScene.tsx
+- Props: CharacterSceneConfig
+- Use Remotion hooks:
+  - useCurrentFrame()
+  - useVideoConfig()
+  - interpolate() for motion
+- Render the image full-frame with:
+  - transform: scale(...) translate(...)
+- Default motion if none provided:
+  - slow zoom from 1.0 → 1.03
+
+3) Wire CharacterScene into renderScene factory
+- File: src/factory/renderScene.tsx
+- Map:
+  "character" → <CharacterScene />
+
+4) Update ConfigDrivenExplainer to support CharacterScene
+- No structural changes
+- It should just work via the factory
+
+5) Add a test scene to ConfigDrivenExplainer config
+- Use any existing static image asset
+- Duration: ~5 seconds
+- Motion: panZoom (subtle)
+
+Example JSON scene to validate:
+
+{
+  "type": "character",
+  "asset": "keith_overload.png",
+  "duration": 5,
+  "motion": {
+    "type": "panZoom",
+    "startScale": 1.0,
+    "endScale": 1.06,
+    "startX": 0,
+    "endX": -3,
+    "startY": 0,
+    "endY": 0
+  }
+}
+
+Acceptance criteria:
+- CharacterScene renders in Remotion Studio.
+- Image animates smoothly (no jumps).
+- Captions continue to render correctly on top.
+- Scene duration matches JSON config.
+- No RunwayML or video assets required.
+
+After implementing, report:
+- Files created
+- Files modified
+- How to preview in Remotion Studio
