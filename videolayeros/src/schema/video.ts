@@ -100,7 +100,8 @@ export interface CaptionsConfig {
 
 export interface VideoConfig {
   composition: string;
-  scenes: SceneConfig[];
+  scenes?: SceneConfig[];
+  scriptFile?: string;
   captions?: CaptionsConfig;
   poster?: PosterConfig;
 }

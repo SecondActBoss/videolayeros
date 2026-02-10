@@ -1,0 +1,22 @@
+{
+  "beats": [
+    {
+      "id": "intro",
+      "text": "Keith just got back from a conference with a ton of new leads.",
+      "intent": "overload",
+      "emphasis": "slow"
+    },
+    {
+      "id": "buzz",
+      "text": "Emails. Messages. Demos to schedule.",
+      "intent": "overload",
+      "emphasis": "fast"
+    },
+    {
+      "id": "dwight",
+      "text": "Then Dwight shows up.",
+      "intent": "handoff",
+      "emphasis": "normal"
+    }
+  ]
+}

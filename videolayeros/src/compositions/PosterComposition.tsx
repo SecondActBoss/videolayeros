@@ -13,14 +13,17 @@ const getSceneDuration = (scene: SceneConfig): number => {
   return 120;
 };
 
-const findTargetScene = (config: VideoConfig): { scene: SceneConfig; localFrame: number } => {
+const findTargetScene = (config: VideoConfig): { scene: SceneConfig; localFrame: number } | null => {
+  const scenes = config.scenes ?? [];
+  if (scenes.length === 0) return null;
+
   const poster = config.poster;
   if (!poster) {
-    return { scene: config.scenes[0], localFrame: 0 };
+    return { scene: scenes[0], localFrame: 0 };
   }
 
-  if (poster.sceneIndex !== undefined && poster.sceneIndex < config.scenes.length) {
-    const scene = config.scenes[poster.sceneIndex];
+  if (poster.sceneIndex !== undefined && poster.sceneIndex < scenes.length) {
+    const scene = scenes[poster.sceneIndex];
     const duration = getSceneDuration(scene);
     const localFrame = poster.frame ?? Math.floor(duration / 2);
     return { scene, localFrame: Math.min(localFrame, duration - 1) };
@@ -28,7 +31,7 @@ const findTargetScene = (config: VideoConfig): { scene: SceneConfig; localFrame:
 
   if (poster.frame !== undefined) {
     let accumulated = 0;
-    for (const scene of config.scenes) {
+    for (const scene of scenes) {
       const duration = getSceneDuration(scene);
       if (poster.frame < accumulated + duration) {
         return { scene, localFrame: poster.frame - accumulated };
@@ -37,16 +40,16 @@ const findTargetScene = (config: VideoConfig): { scene: SceneConfig; localFrame:
     }
   }
 
-  const characterIdx = config.scenes.findIndex(
+  const characterIdx = scenes.findIndex(
     (s) => s.type === 'character' || s.type === 'multiCharacter',
   );
   if (characterIdx >= 0) {
-    const scene = config.scenes[characterIdx];
+    const scene = scenes[characterIdx];
     const duration = getSceneDuration(scene);
     return { scene, localFrame: Math.floor(duration / 2) };
   }
 
-  return { scene: config.scenes[0], localFrame: 0 };
+  return { scene: scenes[0], localFrame: 0 };
 };
 
 interface PosterCompositionProps {
@@ -55,7 +58,10 @@ interface PosterCompositionProps {
 }
 
 export const PosterComposition: React.FC<PosterCompositionProps> = ({ config, aspectRatio }) => {
-  const { scene, localFrame } = findTargetScene(config);
+  const result = findTargetScene(config);
+  if (!result) return <AbsoluteFill />;
+
+  const { scene, localFrame } = result;
   const sceneDuration = getSceneDuration(scene);
 
   return (

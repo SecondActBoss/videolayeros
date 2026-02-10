@@ -21,20 +21,22 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **Shared motion utils**: `src/utils/motion.ts` - reusable interpolation logic
 - **Character Emotion Registry**: Auto-selects character assets by emotion (no manual asset paths in JSON)
 - **Scene Intent Resolver**: Maps scene-level intent (e.g. "overload") to per-character emotions automatically
+- **Script Intent Compiler**: Converts narrative script beats into auto-generated scenes with captions
 - **Caption Layer**: Word-timed captions with active word highlighting
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
+- ScriptDrivenExplainer: Auto-compiled from ep01.script.json (3 beats → 3 scenes)
 - TextScene and IntroScene as reusable primitives
 - SimpleExplainer (legacy hardcoded) still available
 
 ### Architecture: The OS Layer
 
 ```
-JSON Config → Schema Types → Scene Factory → Remotion Composition → Video
-                                  ↑                    ↑
-                         Intent Resolver      Caption Layer (overlay)
-                              ↓                        ↑
-                        Emotion Registry      Word Timings JSON
-                     (auto asset selection)
+Script Beats → Intent Compiler → Scene Factory → Remotion Composition → Video
+       OR                ↑              ↑                    ↑
+JSON Config →    Intent Resolver   Schema Types    Caption Layer (overlay)
+                      ↓                                     ↑
+                Emotion Registry                  Word Timings (auto or JSON)
+             (auto asset selection)
 ```
 
 VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output. Captions are a global overlay layer driven by word-timing data.
@@ -47,7 +49,10 @@ videolayeros/
 │   ├── Root.tsx              # Composition definitions
 │   ├── schema/
 │   │   ├── video.ts          # SceneConfig, VideoConfig types (the contract)
+│   │   ├── script.ts         # ScriptBeat, ScriptFile types
 │   │   └── captions.ts       # WordTiming, CaptionsFile types
+│   ├── compiler/
+│   │   └── intentCompiler.ts # Script → scenes + captions compilation
 │   ├── factory/
 │   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── components/
@@ -67,12 +72,15 @@ videolayeros/
 │   ├── layouts/
 │   │   └── FullscreenCentered.tsx
 │   ├── assets/
-│   │   └── captions/
-│   │       └── ep01.words.json  # Sample word timings
+│   │   ├── captions/
+│   │   │   └── ep01.words.json  # Sample word timings
+│   │   └── scripts/
+│   │       └── ep01.script.json # Script beats for auto-compilation
 │   └── compositions/
 │       ├── SimpleExplainer.tsx       # Legacy hardcoded
-│       ├── ConfigDrivenExplainer.tsx # JSON-driven composition with captions
-│       └── PosterComposition.tsx    # Single-frame poster/thumbnail render
+│       ├── ConfigDrivenExplainer.tsx  # JSON-driven composition (supports scriptFile)
+│       ├── ScriptDrivenExplainer.tsx # Auto-compiled from script beats
+│       └── PosterComposition.tsx     # Single-frame poster/thumbnail render
 ├── assets/
 │   ├── logos/
 │   ├── fonts/

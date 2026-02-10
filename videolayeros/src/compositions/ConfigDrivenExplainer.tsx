@@ -1,9 +1,13 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
-import { VideoConfig } from '../schema/video';
+import { VideoConfig, SceneConfig } from '../schema/video';
+import { WordTiming } from '../schema/captions';
 import { CaptionLayer } from '../components/CaptionLayer';
+import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
+import { ScriptFile } from '../schema/script';
 import captionsData from '../assets/captions/ep01.words.json';
+import scriptData from '../assets/scripts/ep01.script.json';
 
 export const explainerConfig: VideoConfig = {
   composition: 'ConfigDrivenExplainer',
@@ -102,19 +106,38 @@ export const explainerConfig: VideoConfig = {
 
 const FPS = 30;
 
-const getSceneDuration = (scene: VideoConfig['scenes'][number]): number => {
+const getSceneDuration = (scene: SceneConfig): number => {
   if (scene.durationInFrames) return scene.durationInFrames;
   if (scene.type === 'character') return scene.duration * FPS;
   if (scene.type === 'multiCharacter') return scene.duration * FPS;
   return 120;
 };
 
+function resolveConfig(config: VideoConfig): {
+  scenes: SceneConfig[];
+  captionWords: WordTiming[];
+} {
+  if (config.scriptFile) {
+    const script = scriptData as ScriptFile;
+    return {
+      scenes: compileScriptToScenes(script),
+      captionWords: compileScriptToCaptions(script),
+    };
+  }
+
+  return {
+    scenes: config.scenes ?? [],
+    captionWords: config.captions?.enabled ? captionsData.words : [],
+  };
+}
+
 export const ConfigDrivenExplainer: React.FC = () => {
+  const { scenes, captionWords } = resolveConfig(explainerConfig);
   let currentFrame = 0;
 
   return (
     <AbsoluteFill>
-      {explainerConfig.scenes.map((scene, index) => {
+      {scenes.map((scene, index) => {
         const duration = getSceneDuration(scene);
         const element = (
           <Sequence
@@ -130,9 +153,9 @@ export const ConfigDrivenExplainer: React.FC = () => {
         return element;
       })}
 
-      {explainerConfig.captions?.enabled && (
+      {captionWords.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
-          <CaptionLayer words={captionsData.words} />
+          <CaptionLayer words={captionWords} />
         </AbsoluteFill>
       )}
     </AbsoluteFill>

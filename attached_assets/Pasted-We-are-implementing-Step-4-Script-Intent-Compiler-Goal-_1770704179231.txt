@@ -1,0 +1,94 @@
+We are implementing Step 4: Script → Intent Compiler.
+
+Goal:
+- Convert a narrative script into a structured scene plan automatically
+- No manual shot list
+- No manual intent assignment inside the video config
+
+WHAT TO BUILD:
+
+1) Create ScriptBeat schema
+File: src/schema/script.ts
+
+Define:
+
+export type ScriptBeat = {
+  id: string;
+  text: string;
+  intent: string;
+  emphasis?: "fast" | "normal" | "slow";
+};
+
+export type ScriptFile = {
+  beats: ScriptBeat[];
+};
+
+2) Create IntentCompiler
+File: src/compiler/intentCompiler.ts
+
+Export a function:
+
+compileScriptToScenes(script: ScriptFile): SceneConfig[]
+
+Rules:
+- Each ScriptBeat becomes ONE scene
+- Scene type defaults to "multiCharacter"
+- Scene intent = beat.intent
+- Scene duration rules:
+  - fast → 2.5s
+  - normal → 4s
+  - slow → 6s
+- Default characters per intent:
+  overload → keith, rachel
+  relief → keith, rachel
+  handoff → dwight, keith, rachel
+
+3) Auto-generate captions per beat
+- Captions source should be generated from beat.text
+- Output a temporary word-timing placeholder:
+  - evenly distribute words across scene duration
+  - real word timings will be swapped later
+
+4) Update ConfigDrivenExplainer
+- Accept either:
+  a) scenes[] (existing behavior)
+  b) scriptFile reference
+- If scriptFile exists:
+  - run compileScriptToScenes()
+  - render compiled scenes instead of manual scenes
+
+5) Example script input
+Create:
+src/assets/scripts/ep01.script.json
+
+Example:
+
+{
+  "beats": [
+    {
+      "id": "intro",
+      "text": "Keith just got back from a conference with a ton of new leads.",
+      "intent": "overload",
+      "emphasis": "slow"
+    },
+    {
+      "id": "buzz",
+      "text": "Emails. Messages. Demos to schedule.",
+      "intent": "overload",
+      "emphasis": "fast"
+    },
+    {
+      "id": "dwight",
+      "text": "Then Dwight shows up.",
+      "intent": "handoff",
+      "emphasis": "normal"
+    }
+  ]
+}
+
+ACCEPTANCE CRITERIA:
+- No scene list required when scriptFile is provided
+- Scenes are auto-generated with correct intent
+- Durations follow emphasis rules
+- Captions appear and advance correctly
+- Existing manual scene configs still work
