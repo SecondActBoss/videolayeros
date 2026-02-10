@@ -1,7 +1,9 @@
 import React from 'react';
-import { Sequence } from 'remotion';
+import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
 import { VideoConfig } from '../schema/video';
+import { CaptionLayer } from '../components/CaptionLayer';
+import captionsData from '../assets/captions/ep01.words.json';
 
 const config: VideoConfig = {
   composition: 'ConfigDrivenExplainer',
@@ -18,13 +20,17 @@ const config: VideoConfig = {
       background: '#1E293B',
     },
   ],
+  captions: {
+    enabled: true,
+    source: 'ep01.words.json',
+  },
 };
 
 export const ConfigDrivenExplainer: React.FC = () => {
   let currentFrame = 0;
 
   return (
-    <>
+    <AbsoluteFill>
       {config.scenes.map((scene, index) => {
         const duration = scene.durationInFrames ?? 120;
         const element = (
@@ -40,6 +46,12 @@ export const ConfigDrivenExplainer: React.FC = () => {
         currentFrame += duration;
         return element;
       })}
-    </>
+
+      {config.captions?.enabled && (
+        <AbsoluteFill style={{ zIndex: 10 }}>
+          <CaptionLayer words={captionsData.words} />
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
   );
 };

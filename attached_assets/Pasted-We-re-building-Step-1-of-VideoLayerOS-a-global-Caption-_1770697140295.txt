@@ -1,0 +1,65 @@
+We’re building Step 1 of VideoLayerOS: a global Caption Layer for Remotion.
+
+Goal:
+- Add word-timed captions that render on top of ANY composition (starting with ConfigDrivenExplainer).
+- Captions should highlight the active word based on current frame/time.
+- Keep it simple: single-line captions at bottom center. No fancy animations yet.
+
+Inputs:
+- A JSON file at: src/assets/captions/ep01.words.json
+- Format:
+{
+  "words": [
+    { "text": "Keith", "start": 0.00, "end": 0.35 },
+    { "text": "just",  "start": 0.35, "end": 0.55 }
+  ]
+}
+Times are seconds from start of the video.
+
+What to build:
+
+1) Create caption types
+- File: src/schema/captions.ts
+- Types:
+  type WordTiming = { text: string; start: number; end: number };
+  type CaptionsFile = { words: WordTiming[] };
+
+2) Create a reusable CaptionLayer component
+- File: src/components/CaptionLayer.tsx
+- Props:
+  - words: WordTiming[]
+  - style?: { fontSize?: number; fontFamily?: string; bottom?: number; lineHeight?: number }
+- Behavior:
+  - Use Remotion hooks: useCurrentFrame(), useVideoConfig()
+  - Compute currentTimeSec = frame / fps
+  - Determine active word where start <= t < end
+  - Render a single caption line composed of the last N words leading up to active word (N=8 is fine)
+  - Highlight the active word (e.g., bold + slightly darker color). Keep other words normal.
+  - Place at bottom center with a semi-transparent rounded rectangle background for readability.
+
+3) Wire CaptionLayer into ConfigDrivenExplainer
+- File: src/compositions/ConfigDrivenExplainer.tsx
+- Load the sample captions JSON (import it) and pass to CaptionLayer
+- Ensure captions render on top of the scene output (absolute positioned overlay).
+- Keep existing scene rendering unchanged.
+
+4) Add sample captions JSON
+- File: src/assets/captions/ep01.words.json
+- Add ~30–60 seconds of sample word timings (can be dummy timings).
+- Important: must validate rendering and highlight changes over time.
+
+5) Make it easy to turn captions on/off via VideoConfig
+- Update src/schema/video.ts to allow optional:
+  captions?: { enabled: boolean; source: string }
+- In ConfigDrivenExplainer, if captions.enabled is true, load that source.
+- For now, hardcode to the sample file to prove the system.
+
+Acceptance criteria:
+- Running Remotion Studio shows ConfigDrivenExplainer with captions at the bottom.
+- As the timeline plays, the highlighted word advances smoothly.
+- Captions do not break any existing scenes.
+- Code is clean and reusable. No hardcoded styling inside compositions except defaults.
+
+After implementing, tell me:
+- Which files were created/modified
+- Any commands needed to view in Remotion Studio

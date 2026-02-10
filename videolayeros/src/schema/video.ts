@@ -20,7 +20,13 @@ export type SceneConfig =
   | IntroSceneConfig
   | TextSceneConfig;
 
+export interface CaptionsConfig {
+  enabled: boolean;
+  source: string;
+}
+
 export interface VideoConfig {
   composition: string;
   scenes: SceneConfig[];
+  captions?: CaptionsConfig;
 }

@@ -8,12 +8,13 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ## Current State
 
-**Status**: JSON-Driven Architecture Complete - Data defines videos, engine renders
+**Status**: Caption Layer Complete - Word-timed captions overlay on compositions
 
 ### What's Working
 - Remotion Studio running on port 5000
 - **JSON-driven scene system**: Schema → Factory → Composition pipeline
-- ConfigDrivenExplainer: Videos defined by data, not hardcoded components
+- **Caption Layer**: Word-timed captions with active word highlighting
+- ConfigDrivenExplainer: Videos defined by data with caption overlay
 - TextScene and IntroScene as reusable primitives
 - SimpleExplainer (legacy hardcoded) still available
 
@@ -21,9 +22,13 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ```
 JSON Config → Schema Types → Scene Factory → Remotion Composition → Video
+                                                    ↑
+                                            Caption Layer (overlay)
+                                                    ↑
+                                          Word Timings JSON
 ```
 
-VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output.
+VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output. Captions are a global overlay layer driven by word-timing data.
 
 ### File Structure
 ```
@@ -32,18 +37,24 @@ videolayeros/
 │   ├── index.ts              # Entry point
 │   ├── Root.tsx              # Composition definitions
 │   ├── schema/
-│   │   └── video.ts          # SceneConfig, VideoConfig types (the contract)
+│   │   ├── video.ts          # SceneConfig, VideoConfig types (the contract)
+│   │   └── captions.ts       # WordTiming, CaptionsFile types
 │   ├── factory/
 │   │   └── renderScene.tsx   # Maps scene type → React component
+│   ├── components/
+│   │   └── CaptionLayer.tsx  # Word-timed caption overlay component
 │   ├── scenes/
 │   │   ├── IntroScene.tsx    # Fade-in title scene
 │   │   ├── TextScene.tsx     # Generic text scene (core building block)
 │   │   └── QuoteScene.tsx    # Quote display scene
 │   ├── layouts/
 │   │   └── FullscreenCentered.tsx
+│   ├── assets/
+│   │   └── captions/
+│   │       └── ep01.words.json  # Sample word timings
 │   └── compositions/
 │       ├── SimpleExplainer.tsx       # Legacy hardcoded
-│       └── ConfigDrivenExplainer.tsx # JSON-driven composition
+│       └── ConfigDrivenExplainer.tsx # JSON-driven composition with captions
 ├── assets/
 │   ├── logos/
 │   ├── fonts/
