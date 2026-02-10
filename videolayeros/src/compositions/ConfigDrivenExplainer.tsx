@@ -4,6 +4,7 @@ import { renderScene } from '../factory/renderScene';
 import { VideoConfig, SceneConfig } from '../schema/video';
 import { WordTiming, SilenceWindow } from '../schema/captions';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
+import { VoiceTrack } from '../components/VoiceTrack';
 import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { ScriptFile } from '../schema/script';
 import { resolveDensity } from '../registry/visualDensity';
@@ -194,6 +195,10 @@ export const ConfigDrivenExplainer: React.FC = () => {
         currentFrame += duration;
         return element;
       })}
+
+      {explainerConfig.voice && (
+        <VoiceTrack voice={explainerConfig.voice} />
+      )}
 
       {captionWords.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>

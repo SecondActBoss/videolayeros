@@ -29,6 +29,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **Visual Density**: Brand grammar layer - scenes auto-adjust visual loudness (caption opacity, contrast) from intent
 - **Dwight Personality Layer**: Encoded behavioral personality - Dwight calms scenes (hold motion, density cap, steady captions)
 - **Voice + Silence Intelligence**: [silence] and [pause] tokens in scripts create intentional breathing room; Dwight extends pauses +15% with slower caption fades
+- **Voice Track Insertion**: Optional narration audio via VoiceConfig (src + volume); plays continuously, silence only affects captions
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - ScriptDrivenExplainer: Auto-compiled from ep01.script.json (3 beats → 3 scenes)
 - TextScene and IntroScene as reusable primitives
@@ -65,6 +66,7 @@ videolayeros/
 │   │   └── renderScene.tsx   # Maps scene type → React component
 │   ├── components/
 │   │   ├── CaptionLayer.tsx  # Word-timed caption overlay component
+│   │   ├── VoiceTrack.tsx    # Audio narration track component
 │   │   └── PosterLayer.tsx   # Crop/zoom + headline for poster mode
 │   ├── registry/
 │   │   ├── characterEmotions.ts # Emotion → asset mapping + auto-selection

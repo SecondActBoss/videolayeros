@@ -110,12 +110,18 @@ export interface CaptionsConfig {
   source: string;
 }
 
+export interface VoiceConfig {
+  src: string;
+  volume?: number;
+}
+
 export interface VideoConfig {
   composition: string;
   scenes?: SceneConfig[];
   scriptFile?: string;
   captions?: CaptionsConfig;
   poster?: PosterConfig;
+  voice?: VoiceConfig;
 }
 
 export const ASPECT_DIMENSIONS: Record<AspectRatio, { width: number; height: number }> = {

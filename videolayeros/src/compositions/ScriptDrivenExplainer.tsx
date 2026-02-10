@@ -1,8 +1,9 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
-import { SceneConfig } from '../schema/video';
+import { SceneConfig, VoiceConfig } from '../schema/video';
 import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
+import { VoiceTrack } from '../components/VoiceTrack';
 import { compileScriptToScenes, compileScriptToCaptionsWithSilence } from '../compiler/intentCompiler';
 import { resolveDensity } from '../registry/visualDensity';
 import { isDwightPresent, applyDwightDensityCap } from '../resolvers/dwightBehaviorResolver';
@@ -61,6 +62,8 @@ const densitySegments = buildDensitySegments(compiledScenes);
 
 export const scriptExplainerDuration = totalFrames;
 
+export const scriptVoiceConfig: VoiceConfig | undefined = undefined;
+
 export const ScriptDrivenExplainer: React.FC = () => {
   let currentFrame = 0;
 
@@ -81,6 +84,10 @@ export const ScriptDrivenExplainer: React.FC = () => {
         currentFrame += duration;
         return element;
       })}
+
+      {scriptVoiceConfig && (
+        <VoiceTrack voice={scriptVoiceConfig} />
+      )}
 
       {compiledCaptions.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
