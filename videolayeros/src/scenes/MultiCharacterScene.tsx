@@ -3,10 +3,20 @@ import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, staticFile } from '
 import { MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
 import { resolveCharacterEmotion } from '../registry/characterEmotions';
+import { resolveIntentEmotion } from '../registry/sceneIntents';
 
-function resolveCharacter(character: CharacterLayerConfig): CharacterLayerConfig {
-  if (character.characterId && character.emotion !== undefined) {
-    const emotionState = resolveCharacterEmotion(character.characterId, character.emotion);
+function resolveCharacter(
+  character: CharacterLayerConfig,
+  intent?: string,
+): CharacterLayerConfig {
+  let emotion = character.emotion;
+
+  if (!emotion && intent && character.characterId) {
+    emotion = resolveIntentEmotion(intent, character.characterId) ?? undefined;
+  }
+
+  if (character.characterId && emotion !== undefined) {
+    const emotionState = resolveCharacterEmotion(character.characterId, emotion);
     if (emotionState) {
       return {
         ...character,
@@ -32,10 +42,11 @@ function resolveCharacter(character: CharacterLayerConfig): CharacterLayerConfig
 
 const CharacterLayer: React.FC<{
   character: CharacterLayerConfig;
+  intent?: string;
   durationInFrames: number;
-}> = ({ character, durationInFrames }) => {
+}> = ({ character, intent, durationInFrames }) => {
   const frame = useCurrentFrame();
-  const resolved = resolveCharacter(character);
+  const resolved = resolveCharacter(character, intent);
 
   const baseScale = resolved.scale ?? 1.0;
 
@@ -83,6 +94,7 @@ const CharacterLayer: React.FC<{
 
 export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
   background,
+  intent,
   characters,
 }) => {
   const { durationInFrames } = useVideoConfig();
@@ -113,6 +125,7 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
         <CharacterLayer
           key={character.id}
           character={character}
+          intent={intent}
           durationInFrames={durationInFrames}
         />
       ))}

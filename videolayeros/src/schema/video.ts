@@ -49,6 +49,7 @@ export interface CharacterLayerConfig {
 export interface MultiCharacterSceneConfig extends BaseScene {
   type: 'multiCharacter';
   duration: number;
+  intent?: string;
   background?: {
     color?: string;
     image?: string;

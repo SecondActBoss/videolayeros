@@ -31,12 +31,12 @@ export const explainerConfig: VideoConfig = {
     {
       type: 'multiCharacter',
       duration: 6,
+      intent: 'overload',
       background: { color: '#F5F5F5' },
       characters: [
         {
           id: 'keith',
           characterId: 'keith',
-          emotion: 'overwhelmed',
           position: { x: -10, y: 5 },
           motion: {
             type: 'panZoom',
@@ -47,7 +47,6 @@ export const explainerConfig: VideoConfig = {
         {
           id: 'rachel',
           characterId: 'rachel',
-          emotion: 'concerned',
           position: { x: 15, y: 8 },
         },
         {

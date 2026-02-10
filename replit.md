@@ -20,6 +20,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **MultiCharacterScene**: Multiple character layers with independent position, scale, and motion
 - **Shared motion utils**: `src/utils/motion.ts` - reusable interpolation logic
 - **Character Emotion Registry**: Auto-selects character assets by emotion (no manual asset paths in JSON)
+- **Scene Intent Resolver**: Maps scene-level intent (e.g. "overload") to per-character emotions automatically
 - **Caption Layer**: Word-timed captions with active word highlighting
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - TextScene and IntroScene as reusable primitives
@@ -30,9 +31,10 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 ```
 JSON Config → Schema Types → Scene Factory → Remotion Composition → Video
                                   ↑                    ↑
-                        Emotion Registry      Caption Layer (overlay)
-                     (auto asset selection)            ↑
-                                             Word Timings JSON
+                         Intent Resolver      Caption Layer (overlay)
+                              ↓                        ↑
+                        Emotion Registry      Word Timings JSON
+                     (auto asset selection)
 ```
 
 VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output. Captions are a global overlay layer driven by word-timing data.
@@ -52,7 +54,8 @@ videolayeros/
 │   │   ├── CaptionLayer.tsx  # Word-timed caption overlay component
 │   │   └── PosterLayer.tsx   # Crop/zoom + headline for poster mode
 │   ├── registry/
-│   │   └── characterEmotions.ts # Emotion → asset mapping + auto-selection
+│   │   ├── characterEmotions.ts # Emotion → asset mapping + auto-selection
+│   │   └── sceneIntents.ts      # Intent → character emotion mapping
 │   ├── utils/
 │   │   └── motion.ts         # Shared motion interpolation (computeMotion)
 │   ├── scenes/
