@@ -1,0 +1,40 @@
+{
+  "beats": [
+    {
+      "id": "conference",
+      "text": "Keith just got back from an important business conference.",
+      "intent": "overload",
+      "emphasis": "slow"
+    },
+    {
+      "id": "pileup",
+      "text": "Emails. Messages. Demos to schedule.",
+      "intent": "overload",
+      "emphasis": "fast"
+    },
+    {
+      "id": "pressure",
+      "text": "His phone is already buzzing.",
+      "intent": "overload",
+      "emphasis": "normal"
+    },
+    {
+      "id": "realization",
+      "text": "But there is only so much time in a day.",
+      "intent": "overload",
+      "emphasis": "slow"
+    },
+    {
+      "id": "dwight",
+      "text": "Then Dwight shows up.",
+      "intent": "handoff",
+      "emphasis": "normal"
+    },
+    {
+      "id": "promise",
+      "text": "Every lead. Every time.",
+      "intent": "relief",
+      "emphasis": "slow"
+    }
+  ]
+}
