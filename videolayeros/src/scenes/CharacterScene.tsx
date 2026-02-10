@@ -4,18 +4,21 @@ import { CharacterSceneConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
 import { resolveFraming, anchorToTranslate } from '../registry/framingProfiles';
 import { resolveTransition, computeTransitionScale } from '../registry/transitionProfiles';
+import { resolveDensity } from '../registry/visualDensity';
 
 export const CharacterScene: React.FC<CharacterSceneConfig> = ({
   asset,
   motion,
   framing,
   transition,
+  density,
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
 
   const profile = resolveFraming(framing);
   const transitionProfile = resolveTransition(transition);
+  const densityProfile = resolveDensity(density);
 
   let baseScale: number;
   let translateX: number;
@@ -41,6 +44,10 @@ export const CharacterScene: React.FC<CharacterSceneConfig> = ({
     fps,
   );
 
+  const contrastFilter = densityProfile.backgroundContrastBoost
+    ? 'contrast(1.08) saturate(1.05)'
+    : 'none';
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
       <Img
@@ -50,6 +57,7 @@ export const CharacterScene: React.FC<CharacterSceneConfig> = ({
           height: '100%',
           objectFit: 'cover',
           transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
+          filter: contrastFilter,
         }}
       />
     </AbsoluteFill>

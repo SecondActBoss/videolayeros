@@ -30,6 +30,8 @@ export type FramingType = 'subject-dominant' | 'contextual' | 'supporting';
 
 export type TransitionType = 'cut' | 'push' | 'hold';
 
+export type DensityType = 'high' | 'medium' | 'low';
+
 export interface CharacterSceneConfig extends BaseScene {
   type: 'character';
   asset: string;
@@ -37,6 +39,7 @@ export interface CharacterSceneConfig extends BaseScene {
   motion?: CharacterMotionConfig;
   framing?: FramingType;
   transition?: TransitionType;
+  density?: DensityType;
 }
 
 export interface CharacterLayerConfig {
@@ -58,6 +61,7 @@ export interface MultiCharacterSceneConfig extends BaseScene {
   intent?: string;
   framing?: FramingType;
   transition?: TransitionType;
+  density?: DensityType;
   background?: {
     color?: string;
     image?: string;

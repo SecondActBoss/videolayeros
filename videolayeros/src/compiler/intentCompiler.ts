@@ -55,6 +55,10 @@ function beatToScene(beat: ScriptBeat): MultiCharacterSceneConfig {
     scene.transition = beat.transition;
   }
 
+  if (beat.density) {
+    scene.density = beat.density;
+  }
+
   return scene;
 }
 

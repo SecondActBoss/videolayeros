@@ -3,9 +3,10 @@ import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
 import { VideoConfig, SceneConfig } from '../schema/video';
 import { WordTiming } from '../schema/captions';
-import { CaptionLayer } from '../components/CaptionLayer';
+import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
 import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
 import { ScriptFile } from '../schema/script';
+import { resolveDensity } from '../registry/visualDensity';
 import captionsData from '../assets/captions/ep01.words.json';
 import scriptData from '../assets/scripts/ep01.script.json';
 
@@ -113,6 +114,37 @@ const getSceneDuration = (scene: SceneConfig): number => {
   return 120;
 };
 
+function getSceneDensityContext(scene: SceneConfig): { density?: string; intent?: string } {
+  if (scene.type === 'multiCharacter') {
+    return { density: scene.density, intent: scene.intent };
+  }
+  if (scene.type === 'character') {
+    return { density: scene.density };
+  }
+  return {};
+}
+
+function buildDensitySegments(scenes: SceneConfig[]): DensitySegment[] {
+  const segments: DensitySegment[] = [];
+  let currentFrame = 0;
+
+  for (const scene of scenes) {
+    const duration = getSceneDuration(scene);
+    const ctx = getSceneDensityContext(scene);
+    const profile = resolveDensity(ctx.density as any, ctx.intent);
+
+    segments.push({
+      startFrame: currentFrame,
+      endFrame: currentFrame + duration,
+      density: profile,
+    });
+
+    currentFrame += duration;
+  }
+
+  return segments;
+}
+
 function resolveConfig(config: VideoConfig): {
   scenes: SceneConfig[];
   captionWords: WordTiming[];
@@ -133,6 +165,7 @@ function resolveConfig(config: VideoConfig): {
 
 export const ConfigDrivenExplainer: React.FC = () => {
   const { scenes, captionWords } = resolveConfig(explainerConfig);
+  const densitySegments = buildDensitySegments(scenes);
   let currentFrame = 0;
 
   return (
@@ -155,7 +188,7 @@ export const ConfigDrivenExplainer: React.FC = () => {
 
       {captionWords.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
-          <CaptionLayer words={captionWords} />
+          <CaptionLayer words={captionWords} densitySegments={densitySegments} />
         </AbsoluteFill>
       )}
     </AbsoluteFill>

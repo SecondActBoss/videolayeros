@@ -2,8 +2,9 @@ import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { renderScene } from '../factory/renderScene';
 import { SceneConfig } from '../schema/video';
-import { CaptionLayer } from '../components/CaptionLayer';
+import { CaptionLayer, DensitySegment } from '../components/CaptionLayer';
 import { compileScriptToScenes, compileScriptToCaptions } from '../compiler/intentCompiler';
+import { resolveDensity } from '../registry/visualDensity';
 import scriptData from '../assets/scripts/ep01.script.json';
 import { ScriptFile } from '../schema/script';
 
@@ -24,6 +25,32 @@ const totalFrames = compiledScenes.reduce(
   (sum, scene) => sum + getSceneDuration(scene),
   0,
 );
+
+function buildDensitySegments(scenes: SceneConfig[]): DensitySegment[] {
+  const segments: DensitySegment[] = [];
+  let currentFrame = 0;
+
+  for (const scene of scenes) {
+    const duration = getSceneDuration(scene);
+    const intent = scene.type === 'multiCharacter' ? scene.intent : undefined;
+    const density = (scene.type === 'multiCharacter' || scene.type === 'character')
+      ? (scene as any).density
+      : undefined;
+    const profile = resolveDensity(density, intent);
+
+    segments.push({
+      startFrame: currentFrame,
+      endFrame: currentFrame + duration,
+      density: profile,
+    });
+
+    currentFrame += duration;
+  }
+
+  return segments;
+}
+
+const densitySegments = buildDensitySegments(compiledScenes);
 
 export const scriptExplainerDuration = totalFrames;
 
@@ -50,7 +77,7 @@ export const ScriptDrivenExplainer: React.FC = () => {
 
       {compiledCaptions.length > 0 && (
         <AbsoluteFill style={{ zIndex: 10 }}>
-          <CaptionLayer words={compiledCaptions} />
+          <CaptionLayer words={compiledCaptions} densitySegments={densitySegments} />
         </AbsoluteFill>
       )}
     </AbsoluteFill>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { WordTiming } from '../schema/captions';
+import { DensityProfile, DENSITY_PROFILES } from '../registry/visualDensity';
 
 interface CaptionStyle {
   fontSize?: number;
@@ -9,16 +10,40 @@ interface CaptionStyle {
   lineHeight?: number;
 }
 
+export interface DensitySegment {
+  startFrame: number;
+  endFrame: number;
+  density: DensityProfile;
+}
+
 interface CaptionLayerProps {
   words: WordTiming[];
   style?: CaptionStyle;
+  densitySegments?: DensitySegment[];
 }
 
 const WINDOW_SIZE = 8;
+const DEFAULT_DENSITY = DENSITY_PROFILES.medium;
+
+function getDensityAtFrame(
+  frame: number,
+  segments?: DensitySegment[],
+): DensityProfile {
+  if (!segments || segments.length === 0) return DEFAULT_DENSITY;
+
+  for (const seg of segments) {
+    if (frame >= seg.startFrame && frame < seg.endFrame) {
+      return seg.density;
+    }
+  }
+
+  return DEFAULT_DENSITY;
+}
 
 export const CaptionLayer: React.FC<CaptionLayerProps> = ({
   words,
   style,
+  densitySegments,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -28,6 +53,8 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
   const fontFamily = style?.fontFamily ?? 'system-ui, -apple-system, sans-serif';
   const bottom = style?.bottom ?? 80;
   const lineHeight = style?.lineHeight ?? 1.4;
+
+  const density = getDensityAtFrame(frame, densitySegments);
 
   const activeIndex = words.findIndex(
     (w) => currentTimeSec >= w.start && currentTimeSec < w.end
@@ -48,11 +75,12 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({
         display: 'flex',
         justifyContent: 'center',
         pointerEvents: 'none',
+        opacity: density.captionOpacity,
       }}
     >
       <div
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backgroundColor: `rgba(0, 0, 0, ${density.captionBackgroundOpacity})`,
           borderRadius: 12,
           padding: '16px 32px',
           maxWidth: '80%',

@@ -6,6 +6,7 @@ import { resolveCharacterEmotion } from '../registry/characterEmotions';
 import { resolveIntentEmotion } from '../registry/sceneIntents';
 import { resolveFraming, anchorToTranslate, FramingProfile } from '../registry/framingProfiles';
 import { resolveTransition, computeTransitionScale, TransitionProfile } from '../registry/transitionProfiles';
+import { resolveDensity, DensityProfile } from '../registry/visualDensity';
 
 function resolveCharacter(
   character: CharacterLayerConfig,
@@ -49,7 +50,8 @@ const CharacterLayer: React.FC<{
   fps: number;
   framingProfile: FramingProfile | null;
   transitionProfile: TransitionProfile;
-}> = ({ character, intent, durationInFrames, fps, framingProfile, transitionProfile }) => {
+  densityProfile: DensityProfile;
+}> = ({ character, intent, durationInFrames, fps, framingProfile, transitionProfile, densityProfile }) => {
   const frame = useCurrentFrame();
   const resolved = resolveCharacter(character, intent);
 
@@ -92,6 +94,9 @@ const CharacterLayer: React.FC<{
   );
 
   const framingYOffset = framingProfile?.yOffset ?? 0;
+  const contrastFilter = densityProfile.backgroundContrastBoost
+    ? 'contrast(1.08) saturate(1.05)'
+    : 'none';
 
   return (
     <div
@@ -109,6 +114,7 @@ const CharacterLayer: React.FC<{
           height: '100%',
           objectFit: 'contain',
           transform: `scale(${scale}) translate(${motionTranslateX}%, ${motionTranslateY}%)`,
+          filter: contrastFilter,
         }}
       />
     </div>
@@ -120,12 +126,14 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
   intent,
   framing,
   transition,
+  density,
   characters,
 }) => {
   const { durationInFrames, fps } = useVideoConfig();
 
   const framingProfile = resolveFraming(framing, intent);
   const transitionProfile = resolveTransition(transition, intent);
+  const densityProfile = resolveDensity(density, intent);
 
   const bgStyle: React.CSSProperties = {
     overflow: 'hidden',
@@ -158,6 +166,7 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
           fps={fps}
           framingProfile={framingProfile}
           transitionProfile={transitionProfile}
+          densityProfile={densityProfile}
         />
       ))}
     </AbsoluteFill>
