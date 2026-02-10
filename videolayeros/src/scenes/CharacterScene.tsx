@@ -3,32 +3,43 @@ import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, staticFile } from '
 import { CharacterSceneConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
 import { resolveFraming, anchorToTranslate } from '../registry/framingProfiles';
+import { resolveTransition, computeTransitionScale } from '../registry/transitionProfiles';
 
 export const CharacterScene: React.FC<CharacterSceneConfig> = ({
   asset,
   motion,
   framing,
+  transition,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, fps } = useVideoConfig();
 
   const profile = resolveFraming(framing);
+  const transitionProfile = resolveTransition(transition);
 
-  let scale: number;
+  let baseScale: number;
   let translateX: number;
   let translateY: number;
 
   if (profile) {
     const anchorOffset = anchorToTranslate(profile.anchor);
-    scale = profile.scale;
+    baseScale = profile.scale;
     translateX = anchorOffset.x;
     translateY = anchorOffset.y + profile.yOffset;
   } else {
     const motionResult = computeMotion(frame, durationInFrames, motion);
-    scale = motionResult.scale;
+    baseScale = motionResult.scale;
     translateX = motionResult.translateX;
     translateY = motionResult.translateY;
   }
+
+  const scale = computeTransitionScale(
+    transitionProfile,
+    baseScale,
+    frame,
+    durationInFrames,
+    fps,
+  );
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>

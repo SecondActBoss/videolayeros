@@ -5,6 +5,7 @@ import { computeMotion } from '../utils/motion';
 import { resolveCharacterEmotion } from '../registry/characterEmotions';
 import { resolveIntentEmotion } from '../registry/sceneIntents';
 import { resolveFraming, anchorToTranslate, FramingProfile } from '../registry/framingProfiles';
+import { resolveTransition, computeTransitionScale, TransitionProfile } from '../registry/transitionProfiles';
 
 function resolveCharacter(
   character: CharacterLayerConfig,
@@ -45,40 +46,50 @@ const CharacterLayer: React.FC<{
   character: CharacterLayerConfig;
   intent?: string;
   durationInFrames: number;
+  fps: number;
   framingProfile: FramingProfile | null;
-}> = ({ character, intent, durationInFrames, framingProfile }) => {
+  transitionProfile: TransitionProfile;
+}> = ({ character, intent, durationInFrames, fps, framingProfile, transitionProfile }) => {
   const frame = useCurrentFrame();
   const resolved = resolveCharacter(character, intent);
 
   if (!resolved.asset) return null;
 
-  let scale: number;
+  let baseScale: number;
   let motionTranslateX: number;
   let motionTranslateY: number;
 
   if (framingProfile) {
     const anchorOffset = anchorToTranslate(framingProfile.anchor);
-    scale = (resolved.scale ?? 1.0) * framingProfile.scale;
+    baseScale = (resolved.scale ?? 1.0) * framingProfile.scale;
     motionTranslateX = anchorOffset.x;
     motionTranslateY = anchorOffset.y;
   } else {
-    const baseScale = resolved.scale ?? 1.0;
+    const charBaseScale = resolved.scale ?? 1.0;
     const motionConfig = resolved.motion
       ? {
           ...resolved.motion,
-          startScale: resolved.motion.startScale ?? baseScale,
-          endScale: resolved.motion.endScale ?? baseScale,
+          startScale: resolved.motion.startScale ?? charBaseScale,
+          endScale: resolved.motion.endScale ?? charBaseScale,
         }
       : {
           type: 'static' as const,
-          startScale: baseScale,
-          endScale: baseScale,
+          startScale: charBaseScale,
+          endScale: charBaseScale,
         };
     const motionResult = computeMotion(frame, durationInFrames, motionConfig);
-    scale = motionResult.scale;
+    baseScale = motionResult.scale;
     motionTranslateX = motionResult.translateX;
     motionTranslateY = motionResult.translateY;
   }
+
+  const scale = computeTransitionScale(
+    transitionProfile,
+    baseScale,
+    frame,
+    durationInFrames,
+    fps,
+  );
 
   const framingYOffset = framingProfile?.yOffset ?? 0;
 
@@ -108,11 +119,13 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
   background,
   intent,
   framing,
+  transition,
   characters,
 }) => {
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, fps } = useVideoConfig();
 
   const framingProfile = resolveFraming(framing, intent);
+  const transitionProfile = resolveTransition(transition, intent);
 
   const bgStyle: React.CSSProperties = {
     overflow: 'hidden',
@@ -142,7 +155,9 @@ export const MultiCharacterScene: React.FC<MultiCharacterSceneConfig> = ({
           character={character}
           intent={intent}
           durationInFrames={durationInFrames}
+          fps={fps}
           framingProfile={framingProfile}
+          transitionProfile={transitionProfile}
         />
       ))}
     </AbsoluteFill>

@@ -1,4 +1,4 @@
-import { FramingType } from './video';
+import { FramingType, TransitionType } from './video';
 
 export type ScriptBeat = {
   id: string;
@@ -6,6 +6,7 @@ export type ScriptBeat = {
   intent: string;
   emphasis?: 'fast' | 'normal' | 'slow';
   framing?: FramingType;
+  transition?: TransitionType;
 };
 
 export type ScriptFile = {

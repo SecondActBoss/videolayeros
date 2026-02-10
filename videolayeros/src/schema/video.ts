@@ -28,12 +28,15 @@ export interface CharacterMotionConfig {
 
 export type FramingType = 'subject-dominant' | 'contextual' | 'supporting';
 
+export type TransitionType = 'cut' | 'push' | 'hold';
+
 export interface CharacterSceneConfig extends BaseScene {
   type: 'character';
   asset: string;
   duration: number;
   motion?: CharacterMotionConfig;
   framing?: FramingType;
+  transition?: TransitionType;
 }
 
 export interface CharacterLayerConfig {
@@ -54,6 +57,7 @@ export interface MultiCharacterSceneConfig extends BaseScene {
   duration: number;
   intent?: string;
   framing?: FramingType;
+  transition?: TransitionType;
   background?: {
     color?: string;
     image?: string;

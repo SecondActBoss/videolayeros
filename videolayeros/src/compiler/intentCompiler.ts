@@ -51,6 +51,10 @@ function beatToScene(beat: ScriptBeat): MultiCharacterSceneConfig {
     scene.framing = beat.framing;
   }
 
+  if (beat.transition) {
+    scene.transition = beat.transition;
+  }
+
   return scene;
 }
 

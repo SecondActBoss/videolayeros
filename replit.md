@@ -25,6 +25,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **Caption Intelligence**: WPM-paced captions with punctuation pauses and emphasis flags
 - **Caption Layer**: Word-timed captions with active word highlighting and emphasis visuals
 - **Visual Framing Intelligence**: Auto-frames characters based on intent (subject-dominant, contextual, supporting)
+- **Camera Transitions**: Beat-to-beat transitions (cut, push, hold) auto-assigned from intent
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - ScriptDrivenExplainer: Auto-compiled from ep01.script.json (3 beats → 3 scenes)
 - TextScene and IntroScene as reusable primitives
@@ -64,7 +65,8 @@ videolayeros/
 │   ├── registry/
 │   │   ├── characterEmotions.ts # Emotion → asset mapping + auto-selection
 │   │   ├── sceneIntents.ts      # Intent → character emotion mapping
-│   │   └── framingProfiles.ts   # Visual framing profiles + intent mapping
+│   │   ├── framingProfiles.ts   # Visual framing profiles + intent mapping
+│   │   └── transitionProfiles.ts # Camera transition profiles + intent mapping
 │   ├── utils/
 │   │   └── motion.ts         # Shared motion interpolation (computeMotion)
 │   ├── scenes/
