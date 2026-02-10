@@ -16,27 +16,27 @@ export type CharacterRegistry = {
 
 export const CharacterEmotions: CharacterRegistry = {
   keith: {
-    neutral: { asset: 'keith_neutral.png' },
+    neutral: { asset: 'characters/keith/keith_neutral.png' },
     overwhelmed: {
-      asset: 'keith_overwhelmed.png',
+      asset: 'characters/keith/keith_overwhelmed.png',
       defaultScale: 1.1,
     },
-    focused: { asset: 'keith_focused.png' },
-    relieved: { asset: 'keith_relieved.png' },
+    focused: { asset: 'characters/keith/keith_focused.png' },
+    relieved: { asset: 'characters/keith/keith_relieved.png' },
   },
   rachel: {
-    neutral: { asset: 'rachel_neutral.png' },
-    concerned: { asset: 'rachel_concerned.png' },
-    supportive: { asset: 'rachel_supportive.png' },
+    neutral: { asset: 'characters/rachel/rachel_neutral.png' },
+    concerned: { asset: 'characters/rachel/rachel_concerned.png' },
+    supportive: { asset: 'characters/rachel/rachel_supportive.png' },
   },
   dwight: {
-    neutral: { asset: 'dwight_neutral.png' },
+    neutral: { asset: 'characters/dwight/dwight_neutral.png' },
     confident: {
-      asset: 'dwight_confident.png',
+      asset: 'characters/dwight/dwight_confident.png',
       defaultScale: 1.25,
     },
     active: {
-      asset: 'dwight_active.png',
+      asset: 'characters/dwight/dwight_active.png',
       defaultMotion: {
         type: 'panZoom',
         startScale: 1.2,
