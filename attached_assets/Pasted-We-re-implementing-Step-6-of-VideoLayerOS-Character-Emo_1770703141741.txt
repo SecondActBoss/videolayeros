@@ -1,0 +1,114 @@
+We’re implementing Step 6 of VideoLayerOS: Character Emotion States + Auto-Selection.
+
+Goal:
+- Allow scenes to declare an emotional intent
+- Automatically select the correct character image
+- No manual asset switching in JSON
+- Deterministic, rule-based (no AI yet)
+
+WHAT TO BUILD:
+
+1) Create CharacterEmotionRegistry
+File: src/registry/characterEmotions.ts
+
+Define:
+
+type EmotionState = {
+  asset: string;
+  defaultScale?: number;
+  defaultMotion?: CharacterMotionConfig;
+};
+
+type CharacterEmotionMap = {
+  [emotion: string]: EmotionState;
+};
+
+export const CharacterEmotions = {
+  keith: {
+    neutral: { asset: "keith_neutral.png" },
+    overwhelmed: {
+      asset: "keith_overwhelmed.png",
+      defaultScale: 1.1
+    },
+    focused: { asset: "keith_focused.png" },
+    relieved: { asset: "keith_relieved.png" }
+  },
+  rachel: {
+    neutral: { asset: "rachel_neutral.png" },
+    concerned: { asset: "rachel_concerned.png" },
+    supportive: { asset: "rachel_supportive.png" }
+  },
+  dwight: {
+    neutral: { asset: "dwight_neutral.png" },
+    confident: {
+      asset: "dwight_confident.png",
+      defaultScale: 1.25
+    },
+    active: {
+      asset: "dwight_active.png",
+      defaultMotion: {
+        type: "panZoom",
+        startScale: 1.2,
+        endScale: 1.3
+      }
+    }
+  }
+};
+
+2) Extend CharacterLayerConfig
+File: src/schema/video.ts
+
+Replace `asset?: string` with:
+
+characterId?: "keith" | "rachel" | "dwight";
+emotion?: string;
+
+Asset becomes optional — resolved automatically.
+
+3) Update MultiCharacterScene
+File: src/scenes/MultiCharacterScene.tsx
+
+Logic:
+- If characterId + emotion exist:
+  - Lookup asset in CharacterEmotions
+  - Apply defaultScale / defaultMotion if not overridden
+- Explicit config always wins over defaults
+
+4) Add validation + fallback
+- If emotion not found:
+  - Log warning
+  - Fallback to neutral
+- Never crash render
+
+5) Update example config
+
+Example:
+
+{
+  "type": "multiCharacter",
+  "duration": 6,
+  "characters": [
+    {
+      "characterId": "keith",
+      "emotion": "overwhelmed",
+      "position": { "x": -10, "y": 5 }
+    },
+    {
+      "characterId": "rachel",
+      "emotion": "concerned",
+      "position": { "x": 15, "y": 8 }
+    },
+    {
+      "characterId": "dwight",
+      "emotion": "confident",
+      "position": { "x": -35, "y": 0 }
+    }
+  ]
+}
+
+ACCEPTANCE CRITERIA:
+- No assets referenced in scene config
+- Emotion automatically selects image
+- Defaults apply correctly
+- Scene renders without errors
+- Visual result matches intent

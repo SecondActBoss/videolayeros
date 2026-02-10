@@ -35,7 +35,9 @@ export interface CharacterSceneConfig extends BaseScene {
 
 export interface CharacterLayerConfig {
   id: string;
-  asset: string;
+  asset?: string;
+  characterId?: string;
+  emotion?: string;
   position: {
     x: number;
     y: number;

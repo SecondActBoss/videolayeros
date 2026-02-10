@@ -19,6 +19,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **CharacterScene**: Static images with deterministic pan/zoom motion from JSON config
 - **MultiCharacterScene**: Multiple character layers with independent position, scale, and motion
 - **Shared motion utils**: `src/utils/motion.ts` - reusable interpolation logic
+- **Character Emotion Registry**: Auto-selects character assets by emotion (no manual asset paths in JSON)
 - **Caption Layer**: Word-timed captions with active word highlighting
 - ConfigDrivenExplainer: 5 scenes (23 seconds) with caption overlay
 - TextScene and IntroScene as reusable primitives
@@ -28,10 +29,10 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 
 ```
 JSON Config → Schema Types → Scene Factory → Remotion Composition → Video
-                                                    ↑
-                                            Caption Layer (overlay)
-                                                    ↑
-                                          Word Timings JSON
+                                  ↑                    ↑
+                        Emotion Registry      Caption Layer (overlay)
+                     (auto asset selection)            ↑
+                                             Word Timings JSON
 ```
 
 VideoLayerOS accepts structured intent (JSON), not videos. The engine translates intent to rendered output. Captions are a global overlay layer driven by word-timing data.
@@ -50,6 +51,8 @@ videolayeros/
 │   ├── components/
 │   │   ├── CaptionLayer.tsx  # Word-timed caption overlay component
 │   │   └── PosterLayer.tsx   # Crop/zoom + headline for poster mode
+│   ├── registry/
+│   │   └── characterEmotions.ts # Emotion → asset mapping + auto-selection
 │   ├── utils/
 │   │   └── motion.ts         # Shared motion interpolation (computeMotion)
 │   ├── scenes/

@@ -2,20 +2,48 @@ import React from 'react';
 import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
 import { MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
+import { resolveCharacterEmotion } from '../registry/characterEmotions';
+
+function resolveCharacter(character: CharacterLayerConfig): CharacterLayerConfig {
+  if (character.characterId && character.emotion !== undefined) {
+    const emotionState = resolveCharacterEmotion(character.characterId, character.emotion);
+    if (emotionState) {
+      return {
+        ...character,
+        asset: character.asset ?? emotionState.asset,
+        scale: character.scale ?? emotionState.defaultScale,
+        motion: character.motion ?? emotionState.defaultMotion,
+      };
+    }
+  }
+
+  if (!character.asset) {
+    if (character.characterId) {
+      const emotionState = resolveCharacterEmotion(character.characterId, 'neutral');
+      if (emotionState) {
+        return { ...character, asset: emotionState.asset };
+      }
+    }
+    console.warn(`[MultiCharacterScene] No asset resolved for character "${character.id}".`);
+  }
+
+  return character;
+}
 
 const CharacterLayer: React.FC<{
   character: CharacterLayerConfig;
   durationInFrames: number;
 }> = ({ character, durationInFrames }) => {
   const frame = useCurrentFrame();
+  const resolved = resolveCharacter(character);
 
-  const baseScale = character.scale ?? 1.0;
+  const baseScale = resolved.scale ?? 1.0;
 
-  const motionConfig = character.motion
+  const motionConfig = resolved.motion
     ? {
-        ...character.motion,
-        startScale: character.motion.startScale ?? baseScale,
-        endScale: character.motion.endScale ?? baseScale,
+        ...resolved.motion,
+        startScale: resolved.motion.startScale ?? baseScale,
+        endScale: resolved.motion.endScale ?? baseScale,
       }
     : {
         type: 'static' as const,
@@ -29,18 +57,20 @@ const CharacterLayer: React.FC<{
     motionConfig,
   );
 
+  if (!resolved.asset) return null;
+
   return (
     <div
       style={{
         position: 'absolute',
         left: '50%',
         top: '50%',
-        transform: `translate(-50%, -50%) translate(${character.position.x}%, ${character.position.y}%)`,
+        transform: `translate(-50%, -50%) translate(${resolved.position.x}%, ${resolved.position.y}%)`,
         height: '100%',
       }}
     >
       <Img
-        src={staticFile(character.asset)}
+        src={staticFile(resolved.asset)}
         style={{
           height: '100%',
           objectFit: 'contain',

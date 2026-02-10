@@ -35,9 +35,9 @@ export const explainerConfig: VideoConfig = {
       characters: [
         {
           id: 'keith',
-          asset: 'keith_overload.png',
+          characterId: 'keith',
+          emotion: 'overwhelmed',
           position: { x: -10, y: 5 },
-          scale: 1.1,
           motion: {
             type: 'panZoom',
             startScale: 1.1,
@@ -46,15 +46,15 @@ export const explainerConfig: VideoConfig = {
         },
         {
           id: 'rachel',
-          asset: 'rachel_concerned.png',
+          characterId: 'rachel',
+          emotion: 'concerned',
           position: { x: 15, y: 8 },
-          scale: 1.0,
         },
         {
           id: 'dwight',
-          asset: 'dwight_confident.png',
+          characterId: 'dwight',
+          emotion: 'confident',
           position: { x: -35, y: 0 },
-          scale: 1.25,
         },
       ],
     },
