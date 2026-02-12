@@ -7,36 +7,33 @@ export type EmotionState = {
 };
 
 export type CharacterEmotionMap = {
-  [emotion: string]: EmotionState;
+  [emotion: string]: Omit<EmotionState, 'asset'> & { asset?: string };
 };
 
 export type CharacterRegistry = {
   [characterId: string]: CharacterEmotionMap;
 };
 
+function canonicalAssetPath(characterId: string, emotion: string): string {
+  return `assets/characters/${characterId}/${characterId}_${emotion}_master.png`;
+}
+
 export const CharacterEmotions: CharacterRegistry = {
   keith: {
-    neutral: { asset: 'characters/keith/keith_neutral.png' },
-    overwhelmed: {
-      asset: 'characters/keith/keith_overwhelmed.png',
-      defaultScale: 1.1,
-    },
-    focused: { asset: 'characters/keith/keith_focused.png' },
-    relieved: { asset: 'characters/keith/keith_relieved.png' },
+    neutral: {},
+    overwhelmed: { defaultScale: 1.1 },
+    focused: {},
+    relieved: {},
   },
   rachel: {
-    neutral: { asset: 'characters/rachel/rachel_neutral.png' },
-    concerned: { asset: 'characters/rachel/rachel_concerned.png' },
-    supportive: { asset: 'characters/rachel/rachel_supportive.png' },
+    neutral: {},
+    concerned: {},
+    supportive: {},
   },
   dwight: {
-    neutral: { asset: 'characters/dwight/dwight_neutral.png' },
-    confident: {
-      asset: 'characters/dwight/dwight_confident.png',
-      defaultScale: 1.25,
-    },
+    neutral: {},
+    confident: { defaultScale: 1.25 },
     active: {
-      asset: 'characters/dwight/dwight_active.png',
       defaultMotion: {
         type: 'panZoom',
         startScale: 1.2,
@@ -56,16 +53,28 @@ export function resolveCharacterEmotion(
     return null;
   }
 
-  const state = character[emotion];
-  if (state) return state;
+  const entry = character[emotion];
+  if (entry) {
+    return {
+      ...entry,
+      asset: entry.asset ?? canonicalAssetPath(characterId, emotion),
+    };
+  }
 
   console.warn(
     `[CharacterEmotions] Emotion "${emotion}" not found for "${characterId}". Falling back to neutral.`,
   );
 
   const neutral = character['neutral'];
-  if (neutral) return neutral;
+  if (neutral) {
+    return {
+      ...neutral,
+      asset: neutral.asset ?? canonicalAssetPath(characterId, 'neutral'),
+    };
+  }
 
-  console.warn(`[CharacterEmotions] No neutral fallback for "${characterId}".`);
-  return null;
+  console.warn(`[CharacterEmotions] No neutral fallback for "${characterId}". Using canonical neutral path.`);
+  return {
+    asset: canonicalAssetPath(characterId, 'neutral'),
+  };
 }

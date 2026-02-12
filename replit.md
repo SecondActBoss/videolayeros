@@ -19,7 +19,7 @@ VideoLayerOS is a framework for creating videos programmatically using React and
 - **CharacterScene**: Static images with deterministic pan/zoom motion from JSON config
 - **MultiCharacterScene**: Multiple character layers with independent position, scale, and motion
 - **Shared motion utils**: `src/utils/motion.ts` - reusable interpolation logic
-- **Character Emotion Registry**: Auto-selects character assets by emotion (no manual asset paths in JSON)
+- **Character Emotion Registry**: Auto-selects canonical master assets by emotion from `assets/characters/{id}/{id}_{emotion}_master.png`
 - **Scene Intent Resolver**: Maps scene-level intent (e.g. "overload") to per-character emotions automatically
 - **Script Intent Compiler**: Converts narrative script beats into auto-generated scenes with captions
 - **Caption Intelligence**: WPM-paced captions with punctuation pauses and emphasis flags
@@ -93,16 +93,19 @@ videolayeros/
 │   │   ├── captions/
 │   │   │   └── ep01.words.json  # Sample word timings
 │   │   └── scripts/
-│   │       └── ep01.script.json # Script beats for auto-compilation
+│   │       ├── ep01.script.json    # Original script beats
+│   │       └── ep01_v2.script.json # 6-beat narrative arc (active)
 │   └── compositions/
 │       ├── SimpleExplainer.tsx       # Legacy hardcoded
 │       ├── ConfigDrivenExplainer.tsx  # JSON-driven composition (supports scriptFile)
 │       ├── ScriptDrivenExplainer.tsx # Auto-compiled from script beats
 │       └── PosterComposition.tsx     # Single-frame poster/thumbnail render
-├── assets/
-│   ├── logos/
-│   ├── fonts/
-│   └── images/
+├── public/
+│   └── assets/
+│       └── characters/             # Canonical master character assets
+│           ├── keith/              # keith_{emotion}_master.png
+│           ├── rachel/            # rachel_{emotion}_master.png
+│           └── dwight/            # dwight_{emotion}_master.png
 ├── out/                      # Rendered output
 ├── package.json
 └── README.md

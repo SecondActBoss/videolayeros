@@ -24,7 +24,7 @@ export const explainerConfig: VideoConfig = {
     },
     {
       type: 'character',
-      asset: 'keith_overload.png',
+      asset: 'assets/characters/keith/keith_overwhelmed_master.png',
       duration: 5,
       motion: {
         type: 'panZoom',
