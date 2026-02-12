@@ -1,5 +1,5 @@
-import React from 'react';
-import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
+import React, { useState } from 'react';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
 import { CharacterSceneConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
 import { resolveFraming, anchorToTranslate } from '../registry/framingProfiles';
@@ -48,18 +48,25 @@ export const CharacterScene: React.FC<CharacterSceneConfig> = ({
     ? 'contrast(1.08) saturate(1.05)'
     : 'none';
 
+  const [imgError, setImgError] = useState(false);
+
   return (
-    <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
-      <Img
-        src={staticFile(asset)}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
-          filter: contrastFilter,
-        }}
-      />
+    <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+      {!imgError && (
+        <img
+          src={staticFile(asset)}
+          onError={() => {
+            console.warn(`[CharacterScene] Asset not found: "${asset}". Skipping.`);
+            setImgError(true);
+          }}
+          style={{
+            height: '75%',
+            objectFit: 'contain',
+            transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
+            filter: contrastFilter,
+          }}
+        />
+      )}
     </AbsoluteFill>
   );
 };

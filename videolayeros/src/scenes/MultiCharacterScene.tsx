@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AbsoluteFill, Img, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
 import { MultiCharacterSceneConfig, CharacterLayerConfig } from '../schema/video';
 import { computeMotion } from '../utils/motion';
@@ -112,6 +112,10 @@ const CharacterLayer: React.FC<{
     ? 'contrast(1.08) saturate(1.05)'
     : 'none';
 
+  const [imgError, setImgError] = useState(false);
+
+  if (imgError) return null;
+
   return (
     <div
       style={{
@@ -120,12 +124,19 @@ const CharacterLayer: React.FC<{
         top: '50%',
         transform: `translate(-50%, -50%) translate(${resolved.position.x}%, ${resolved.position.y + framingYOffset}%)`,
         height: '100%',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
       }}
     >
-      <Img
+      <img
         src={staticFile(resolved.asset)}
+        onError={() => {
+          console.warn(`[MultiCharacterScene] Asset not found: "${resolved.asset}". Skipping character.`);
+          setImgError(true);
+        }}
         style={{
-          height: '100%',
+          height: '75%',
           objectFit: 'contain',
           transform: `scale(${scale}) translate(${motionTranslateX}%, ${motionTranslateY}%)`,
           filter: contrastFilter,
